@@ -33,12 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         // Nama
-        Text(
-          'Nama',
-          style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
+
+        CustomForm(
+          title: 'Nama',
           controller: emailController,
           keyboardType: TextInputType.name,
           hint: 'Masukkan nama Anda',
@@ -47,12 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 12),
 
         // Email
-        Text(
-          'Email',
-          style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
+
+        CustomForm(
+          title: 'Email',
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           hint: 'Masukkan email Anda',
@@ -61,12 +55,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 12),
 
         // Password
-        Text(
-          'Password',
-          style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
+
+        CustomForm(
+          title: 'Password',
           controller: passwordController,
           hint: 'Masukkan password Anda',
           isPassword: true,

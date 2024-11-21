@@ -32,12 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         // Email
-        Text(
-          'Email',
-          style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
+        CustomForm(
+          title: 'Email',
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           hint: 'Masukkan email Anda',
@@ -46,12 +42,9 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 12),
 
         // Password
-        Text(
-          'Password',
-          style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
+
+        CustomForm(
+          title: 'Password',
           controller: passwordController,
           hint: 'Masukkan password Anda',
           isPassword: true,

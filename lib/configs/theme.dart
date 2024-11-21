@@ -43,3 +43,4 @@ const Color green800 = Color(0xff24412D);
 const Color green900 = Color(0xff101E15);
 
 const Color blueBase = Color(0xffE9FAFD);
+const Color redBase = Color(0xFFFF3B30);

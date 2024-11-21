@@ -1,5 +1,11 @@
+import 'package:apple_leaf/pages/account/edit_password.dart';
+import 'package:apple_leaf/pages/account/edit_profil.dart';
+import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+
+import '../../widgets/custom_button.dart';
 
 class ProfilPage extends StatelessWidget {
   const ProfilPage({super.key});
@@ -78,101 +84,61 @@ class ProfilPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                InkWell(
-                  onTap: () {},
-                  child: Ink(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const ImageIcon(
-                          AssetImage(
-                            'assets/icons/user-edit.png',
-                          ),
-                          size: 24,
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Text(
-                          'Edit Profil',
-                          style: mediumTS.copyWith(
-                            fontSize: 16,
-                            color: neutralBlack,
-                          ),
-                        ),
-                        const Spacer(),
-                        const ImageIcon(
-                          AssetImage('assets/icons/arrow-right.png'),
-                        ),
-                      ],
-                    ),
+                ProfilMenu(
+                  icon: IconsaxPlusLinear.user_edit,
+                  title: 'Ubah Profil',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const EditProfil()),
                   ),
                 ),
                 const Divider(
                   height: 0,
                   color: neutral100,
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Ink(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const ImageIcon(
-                          AssetImage(
-                            'assets/icons/key.png',
-                          ),
-                          size: 24,
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Text(
-                          'Ubah Profil',
-                          style: mediumTS.copyWith(
-                            fontSize: 16,
-                            color: neutralBlack,
-                          ),
-                        ),
-                        const Spacer(),
-                        const ImageIcon(
-                          AssetImage('assets/icons/arrow-right.png'),
-                        ),
-                      ],
-                    ),
+                ProfilMenu(
+                  icon: IconsaxPlusLinear.key,
+                  title: 'Ubah Password',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const EditPassword()),
                   ),
                 ),
                 const Divider(
                   height: 0,
                   color: neutral100,
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Ink(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const ImageIcon(
-                          AssetImage(
-                            'assets/icons/logout.png',
-                          ),
-                          size: 24,
-                          color: Color(0xFFFF3B30),
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Text(
-                          'Keluar',
-                          style: mediumTS.copyWith(
-                            fontSize: 16,
-                            color: const Color(0xFFFF3B30),
-                          ),
-                        ),
-                        const Spacer(),
-                        const ImageIcon(
-                          AssetImage('assets/icons/arrow-right.png'),
-                          color: Color(0xFFFF3B30),
+                ProfilMenu(
+                  icon: IconsaxPlusLinear.logout,
+                  iconColor: redBase,
+                  title: 'Keluar',
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (context) => CustomDialog(
+                      title: 'Ingin Keluar?',
+                      subtitle:
+                          'Anda dapat masuk kembali kapan saja dengan menggunakan akun Anda.',
+                      actions: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                isDialogButton: true,
+                                text: 'Keluar',
+                                backgroundColor: redBase,
+                                onTap: () {},
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: CustomButton(
+                                isDialogButton: true,
+                                text: 'Batal',
+                                backgroundColor: neutralWhite,
+                                borderColor: neutral100,
+                                textColor: neutralBlack,
+                                onTap: () => Navigator.of(context).pop(),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -182,6 +148,52 @@ class ProfilPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ProfilMenu extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final VoidCallback? onTap;
+  const ProfilMenu({
+    super.key,
+    required this.icon,
+    this.iconColor = neutralBlack,
+    required this.title,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Ink(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: iconColor,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: mediumTS.copyWith(
+                fontSize: 16,
+                color: iconColor,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              IconsaxPlusLinear.arrow_right_3,
+              color: iconColor,
+            )
+          ],
+        ),
       ),
     );
   }
