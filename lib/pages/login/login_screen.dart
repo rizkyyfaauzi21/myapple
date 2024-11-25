@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:apple_leaf/pages/login/forgot_password_page.dart';
 
 import '../../configs/theme.dart';
 import '../../main_screen.dart';
@@ -52,15 +53,28 @@ class _LoginScreenState extends State<LoginScreen> {
           onTap: () => setState(() => passwordHidden = !passwordHidden),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
 
-        Text(
-          'Lupa Password?',
-          style: mediumTS.copyWith(color: green700),
-          textAlign: TextAlign.end,
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+              );
+            },
+            style: const ButtonStyle(
+              overlayColor: MaterialStatePropertyAll(green100),
+            ),
+            child: Text(
+              'Lupa Password?',
+              style: mediumTS.copyWith(color: green700),
+              textAlign: TextAlign.end,
+            ),
+          ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
 
         CustomButton(
           onTap: () {

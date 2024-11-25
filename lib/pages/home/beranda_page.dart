@@ -1,3 +1,4 @@
+import 'package:apple_leaf/widgets/home/beranda_pindai_card.dart';
 import 'package:apple_leaf/widgets/home/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
@@ -6,10 +7,10 @@ class BerandaPage extends StatelessWidget {
   final Function(int) updateIndex;
   const BerandaPage({super.key, required this.updateIndex});
 
-  final isEventEmpty = false;
-
   @override
   Widget build(BuildContext context) {
+    bool isEventEmpty = false;
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80,
@@ -46,105 +47,19 @@ class BerandaPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          Stack(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 160,
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: const DecorationImage(
-                    image: AssetImage(
-                      'assets/images/apple_background.png',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 160,
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color.fromARGB(153, 0, 0, 0),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Pindai Kesehatan\nPohon Apelmu!',
-                          style: mediumTS.copyWith(
-                            fontSize: 20,
-                            color: neutralWhite,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        InkWell(
-                          onTap: () {},
-                          child: Ink(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              width: MediaQuery.of(context).size.width / 2.45,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(64),
-                                color: const Color(0xffD3F3FA),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const ImageIcon(
-                                    AssetImage('assets/icons/scan.png'),
-                                    color: neutralBlack,
-                                  ),
-                                  const SizedBox(
-                                    width: 12,
-                                  ),
-                                  Text(
-                                    'Pindai',
-                                    style: mediumTS.copyWith(
-                                      fontSize: 16,
-                                      color: neutralBlack,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // Pindai
+          BerandaPindaiCard(
+            onScan: () {},
           ),
-          const SizedBox(
-            height: 16,
-          ),
+
+          const SizedBox(height: 16),
+
+          // Riwayat
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Text(
               'Riwayat terbaru',
-              style: mediumTS.copyWith(
-                fontSize: 20,
-                color: neutralBlack,
-              ),
+              style: mediumTS.copyWith(fontSize: 20, color: neutralBlack),
             ),
           ),
           isEventEmpty
@@ -161,23 +76,20 @@ class BerandaPage extends StatelessWidget {
                     ),
                     Text(
                       'Belum ada riwayat',
-                      style: mediumTS.copyWith(
-                        fontSize: 14,
-                        color: neutral400,
-                      ),
+                      style: mediumTS.copyWith(fontSize: 14, color: neutral400),
                     )
                   ],
                 )
-              : Padding(
-                  padding: const EdgeInsets.all(12),
+              : const Padding(
+                  padding: EdgeInsets.all(12),
                   child: Wrap(
                     spacing: 12,
                     runSpacing: 12,
-                    children: const [
+                    children: [
                       CustomCard(
-                        label: 'Jomok Stadium 10',
+                        label: 'Scrab',
                         waktuScan: '1 hari yang lalu',
-                        image: 'assets/images/1.jpg',
+                        image: 'assets/images/daun_article.png',
                       ),
                       CustomCard(
                         label: 'Fire Blight',
@@ -186,7 +98,7 @@ class BerandaPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
+                ),
         ],
       ),
     );

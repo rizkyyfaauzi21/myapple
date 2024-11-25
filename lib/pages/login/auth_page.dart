@@ -14,6 +14,8 @@ class AuthPage extends StatelessWidget {
       child: Scaffold(
         body: Column(
           children: [
+            const SizedBox(height: 12),
+
             Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
@@ -50,11 +52,9 @@ class AuthPage extends StatelessWidget {
                       color: neutral50,
                     ),
                     child: TabBar(
-                      indicatorPadding:
-                          const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                      indicatorPadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
                       labelStyle: mediumTS.copyWith(fontSize: 14, color: neutralWhite),
-                      unselectedLabelStyle:
-                          mediumTS.copyWith(fontSize: 14, color: neutral400),
+                      unselectedLabelStyle: mediumTS.copyWith(fontSize: 14, color: neutral400),
                       indicator: BoxDecoration(
                         color: green700,
                         borderRadius: BorderRadius.circular(100),

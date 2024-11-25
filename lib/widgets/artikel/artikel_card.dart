@@ -1,13 +1,13 @@
 import 'package:apple_leaf/configs/theme.dart';
-import 'package:apple_leaf/pages/artikel/detailArtikel_page.dart';
+import 'package:apple_leaf/pages/artikel/detail_artikel_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
-class artikelCard extends StatelessWidget {
+class ArtikelCard extends StatelessWidget {
   final String label;
   final String title;
   final String image;
-  const artikelCard({
+  const ArtikelCard({
     super.key,
     required this.label,
     required this.title,
@@ -18,17 +18,15 @@ class artikelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
+        Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => DetailArtikelPage(
-              title: title,
-            ),
+            builder: (context) => DetailArtikelPage(title: title),
           ),
         );
       },
       child: Container(
         height: 100 + 16,
+        margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           border: Border.all(color: neutral100),
@@ -60,10 +58,7 @@ class artikelCard extends StatelessWidget {
                           color: neutral50,
                           borderRadius: BorderRadius.circular(64),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: Text(
                           label,
                           style: regularTS.copyWith(

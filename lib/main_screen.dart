@@ -48,37 +48,41 @@ class _MainScreenState extends State<MainScreen> {
       // FLOATING BUTTON END
 
       // BOTTOM NAVBAR
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: neutral50,
-        selectedItemColor: green700,
-        unselectedItemColor: neutral400,
-        selectedLabelStyle: regularTS.copyWith(fontSize: 12, color: green700),
-        unselectedLabelStyle: regularTS.copyWith(fontSize: 12, color: neutral400),
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(IconsaxPlusLinear.home_2),
-            activeIcon: Icon(IconsaxPlusBold.home_2),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(IconsaxPlusLinear.clock_1),
-            activeIcon: Icon(IconsaxPlusBold.clock),
-            label: 'Riwayat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(IconsaxPlusLinear.note_2),
-            activeIcon: Icon(IconsaxPlusBold.note_2),
-            label: 'Artikel',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(IconsaxPlusLinear.profile_circle),
-            activeIcon: Icon(IconsaxPlusBold.profile_circle),
-            label: 'Profil',
-          ),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        height: 72,
+        padding: EdgeInsets.zero,
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: neutral50,
+          selectedItemColor: green700,
+          unselectedItemColor: neutral400,
+          selectedLabelStyle: regularTS.copyWith(fontSize: 12, color: green700),
+          unselectedLabelStyle: regularTS.copyWith(fontSize: 12, color: neutral400),
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(IconsaxPlusLinear.home_2),
+              activeIcon: Icon(IconsaxPlusBold.home_2),
+              label: 'Beranda',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(IconsaxPlusLinear.clock_1),
+              activeIcon: Icon(IconsaxPlusBold.clock),
+              label: 'Riwayat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(IconsaxPlusLinear.note_2),
+              activeIcon: Icon(IconsaxPlusBold.note_2),
+              label: 'Artikel',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(IconsaxPlusLinear.profile_circle),
+              activeIcon: Icon(IconsaxPlusBold.profile_circle),
+              label: 'Profil',
+            ),
+          ],
+        ),
       ),
       // BOTTOM NAVBAR END
     );
