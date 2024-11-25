@@ -1,11 +1,14 @@
 import 'package:apple_leaf/configs/theme.dart';
-import 'package:apple_leaf/pages/history/detailPenyakit_page.dart';
+import 'package:apple_leaf/pages/history/detail_penyakit_page.dart';
 import 'package:flutter/material.dart';
 
-class listPenyakitCard extends StatelessWidget {
-  final String image,title,date;
-  const listPenyakitCard({
-    super.key, required this.image, required this.title, required this.date,
+class ListPenyakitCard extends StatelessWidget {
+  final String image, title, date;
+  const ListPenyakitCard({
+    super.key,
+    required this.image,
+    required this.title,
+    required this.date,
   });
 
   @override
@@ -15,7 +18,7 @@ class listPenyakitCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailpenyakitPage(
+            builder: (context) => DetailPenyakitPage(
               title: title,
             ),
           ),
@@ -23,6 +26,7 @@ class listPenyakitCard extends StatelessWidget {
       },
       child: Container(
         height: 100 + 16,
+        margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           border: Border.all(color: neutral100),
@@ -49,16 +53,13 @@ class listPenyakitCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
                       Text(
                         title,
                         style: mediumTS.copyWith(fontSize: 16),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
+                      const SizedBox(height: 8),
                       Text(
                         date,
                         style: regularTS.copyWith(color: neutral400),

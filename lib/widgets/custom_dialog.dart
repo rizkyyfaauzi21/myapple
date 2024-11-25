@@ -20,9 +20,9 @@ class CustomDialog extends StatelessWidget {
       ),
       backgroundColor: neutralWhite,
       surfaceTintColor: neutralWhite,
-      titlePadding: const EdgeInsets.all(12),
+      titlePadding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
       title: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           color: neutral50,
@@ -52,7 +52,7 @@ class CustomDialog extends StatelessWidget {
 
       // Actions (maybe some button)
       actionsAlignment: MainAxisAlignment.center,
-      actionsPadding: const EdgeInsets.all(8),
+      actionsPadding: const EdgeInsets.all(12),
       actions: actions,
     );
   }
