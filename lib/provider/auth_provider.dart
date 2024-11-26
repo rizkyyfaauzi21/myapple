@@ -41,7 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   final _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://192.168.1.4:8000/api'; // Replace with your server IP
+  final String baseUrl = 'http://192.168.71.118:8000/api'; // Replace with your server IP
 
   Future<void> _loadUserData() async {
     final token = await _storage.read(key: 'auth_token');
@@ -75,7 +75,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final userData = data['data']['user'];
         await _storage.write(key: 'auth_token', value: token);
 
-        state = state.copyWith(token: token, userData: userData, isLoading: false);
+        state =
+            state.copyWith(token: token, userData: userData, isLoading: false);
       } else {
         final data = jsonDecode(response.body);
         state = state.copyWith(
@@ -84,7 +85,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
+      state =
+          state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
@@ -92,7 +94,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       token ??= await _storage.read(key: 'auth_token');
       if (token == null) {
-        state = state.copyWith(error: 'Token tidak ditemukan. Silakan login kembali.');
+        state = state.copyWith(
+            error: 'Token tidak ditemukan. Silakan login kembali.');
         return;
       }
 
@@ -150,7 +153,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
+      state =
+          state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
@@ -184,6 +188,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           'email': email,
         }),
       );
+
+      print(response);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
