@@ -1,8 +1,5 @@
-// File: lib/pages/login/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../configs/theme.dart';
 import '../../main_screen.dart';
 import '../../widgets/custom_button.dart';

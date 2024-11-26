@@ -1,9 +1,7 @@
-// File: lib/providers/auth_provider.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
   (ref) => AuthNotifier(),
@@ -21,6 +19,20 @@ class AuthState {
     this.error,
     this.userData,
   });
+
+  AuthState copyWith({
+    bool? isLoading,
+    String? token,
+    String? error,
+    Map<String, dynamic>? userData,
+  }) {
+    return AuthState(
+      isLoading: isLoading ?? this.isLoading,
+      token: token ?? this.token,
+      error: error ?? this.error,
+      userData: userData ?? this.userData,
+    );
+  }
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -40,15 +52,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      state = AuthState(error: 'Email dan Password tidak boleh kosong.');
+      state = state.copyWith(error: 'Email dan Password tidak boleh kosong.');
       return;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      state = AuthState(error: 'Format email tidak valid.');
+      state = state.copyWith(error: 'Format email tidak valid.');
       return;
     }
 
-    state = AuthState(isLoading: true);
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       final response = await http.post(
@@ -57,69 +69,64 @@ class AuthNotifier extends StateNotifier<AuthState> {
         body: jsonEncode({'email': email, 'password': password}),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: "${response.body}"');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['data']['token'];
         final userData = data['data']['user'];
         await _storage.write(key: 'auth_token', value: token);
 
-        state = AuthState(token: token, userData: userData);
+        state = state.copyWith(token: token, userData: userData, isLoading: false);
       } else {
         final data = jsonDecode(response.body);
-        state = AuthState(error: data['message'] ?? 'Email atau Password salah.');
+        state = state.copyWith(
+          error: data['message'] ?? 'Email atau Password salah.',
+          isLoading: false,
+        );
       }
     } catch (e) {
-      print('Login Error: $e');
-      state = AuthState(error: 'Gagal terhubung ke server.');
+      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
   Future<void> fetchUserData({String? token}) async {
-      try {
-        token ??= await _storage.read(key: 'auth_token');
-        if (token == null) {
-          state = AuthState(error: 'Token tidak ditemukan. Silakan login kembali.');
-          return;
-        }
-
-        final response = await http.get(
-          Uri.parse('$baseUrl/user'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer' ,
-          },
-        );
-
-        print('Fetch User Data Response: ${response.statusCode}');
-        print('Response body: "${response.body}"');
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final userData = data['data'];
-          state = AuthState(userData: userData, token: token);
-        } else {
-          state = AuthState(error: 'Gagal mengambil data user.');
-        }
-      } catch (e) {
-        print('Fetch User Data Error: $e');
-        state = AuthState(error: 'Gagal terhubung ke server.');
+    try {
+      token ??= await _storage.read(key: 'auth_token');
+      if (token == null) {
+        state = state.copyWith(error: 'Token tidak ditemukan. Silakan login kembali.');
+        return;
       }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final userData = data['data'];
+        state = state.copyWith(userData: userData, token: token);
+      } else {
+        state = state.copyWith(error: 'Gagal mengambil data user.');
+      }
+    } catch (e) {
+      state = state.copyWith(error: 'Gagal terhubung ke server.');
     }
+  }
 
   Future<void> register(String name, String email, String password) async {
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      state = AuthState(error: 'Semua kolom harus diisi.');
+      state = state.copyWith(error: 'Semua kolom harus diisi.');
       return;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      state = AuthState(error: 'Format email tidak valid.');
+      state = state.copyWith(error: 'Format email tidak valid.');
       return;
     }
 
-    state = AuthState(isLoading: true);
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       final response = await http.post(
@@ -132,42 +139,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: "${response.body}"');
-
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        // Handle successful registration
-        state = AuthState();
+        // After successful registration, log the user in
+        await login(email, password);
       } else {
         final data = jsonDecode(response.body);
-        state = AuthState(error: data['message'] ?? 'Terjadi kesalahan.');
+        state = state.copyWith(
+          error: data['message'] ?? 'Terjadi kesalahan.',
+          isLoading: false,
+        );
       }
-    } catch (e, stackTrace) {
-      print('Register Error: $e');
-      print('Stack Trace: $stackTrace');
-      state = AuthState(error: 'Gagal terhubung ke server.');
+    } catch (e) {
+      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
   Future<void> logout() async {
-    state = AuthState(isLoading: true);
     try {
-      final token = await _storage.read(key: 'auth_token');
-      if (token != null) {
-        await http.post(
-          Uri.parse('$baseUrl/logout'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        );
-      }
       await _storage.delete(key: 'auth_token');
-      state = AuthState();
+      state = AuthState(); // Reset the authentication state
     } catch (e) {
-      print('Logout Error: $e');
-      state = AuthState(error: 'Gagal logout.');
+      state = state.copyWith(error: 'Gagal logout.');
     }
   }
 
@@ -193,54 +185,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }),
       );
 
-      print('Update Profile Response: ${response.statusCode}');
-      print('Response body: "${response.body}"');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final userData = data['data'];
-        state = AuthState(userData: userData, token: token);
-        return null;
+        // Update the state with the new user data
+        state = state.copyWith(userData: userData);
+        return null; // No error
+      } else if (response.statusCode == 422) {
+        final data = jsonDecode(response.body);
+        final errors = data['errors'];
+        String errorMessage = 'Gagal memperbarui profil.';
+        if (errors != null && errors.isNotEmpty) {
+          errorMessage = errors.values.first[0];
+        }
+        return errorMessage;
       } else {
         final data = jsonDecode(response.body);
         return data['message'] ?? 'Gagal memperbarui profil.';
       }
     } catch (e) {
-      print('Update Profile Error: $e');
-      return 'Gagal terhubung ke server.';
-    }
-  }
-
-  Future<String?> updatePassword(String password) async {
-    try {
-      final token = await _storage.read(key: 'auth_token');
-      if (token == null) {
-        return 'Token tidak ditemukan. Silakan login kembali.';
-      }
-
-      final response = await http.patch(
-        Uri.parse('$baseUrl/user/password'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'password': password,
-          'password_confirmation': password,
-        }),
-      );
-
-      print('Update Password Response: ${response.statusCode}');
-      print('Response body: "${response.body}"');
-
-      if (response.statusCode == 200) {
-        return null;
-      } else {
-        final data = jsonDecode(response.body);
-        return data['message'] ?? 'Gagal memperbarui password.';
-      }
-    } catch (e) {
-      print('Update Password Error: $e');
       return 'Gagal terhubung ke server.';
     }
   }

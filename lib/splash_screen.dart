@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/pages/login/auth_page.dart';
