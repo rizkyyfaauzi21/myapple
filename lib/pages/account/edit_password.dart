@@ -1,64 +1,55 @@
-import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
 
-class EditPassword extends StatelessWidget {
+class EditPassword extends StatefulWidget {
   const EditPassword({super.key});
+
+  @override
+  State<EditPassword> createState() => _EditPasswordState();
+}
+
+class _EditPasswordState extends State<EditPassword> {
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Ubah Password',
-          style: mediumTS.copyWith(
-            fontSize: 20,
-            color: neutralBlack,
-          ),
-        ),
-        titleSpacing: 0,
-        toolbarHeight: 42,
-        leading: IconButton(
-          icon: const Icon(
-            IconsaxPlusLinear.arrow_left,
-            color: neutralBlack,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(10.0),
-          child: Container(
-            color: neutral100,
-            height: 1,
-          ),
-        ),
-      ),
+      appBar: customAppBar(context, title: 'Ubah Password'),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           // Input untuk Password
           CustomForm(
             title: 'Password Baru',
-            obscureText: true,
             hint: 'Masukkan password baru',
+            obscureText: true,
+            controller: passwordController,
           ),
           const SizedBox(height: 24),
 
           // Konfirmasi Password
-
           CustomForm(
             title: 'Konfirmasi Password',
-            obscureText: true,
             hint: 'Masukkan konfirmasi password',
+            obscureText: true,
+            controller: confirmPasswordController,
           ),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 24),
 
           // Tombol Simpan
           CustomButton(
-            text: 'Simpan',
+            text: 'Konfirmasi',
             onTap: () {},
           )
         ],

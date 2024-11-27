@@ -1,6 +1,8 @@
+import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/splash_screen.dart';
 import 'package:flutter/material.dart';
 // import 'main_screen.dart';
-import 'pages/login/auth_page.dart';
+// import 'pages/login/auth_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,13 +16,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Apple Leaf',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         fontFamily: 'Inter',
+        scaffoldBackgroundColor: neutralWhite,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const AuthPage(),
-      },
+      home: const SplashScreen(),
     );
   }
 }

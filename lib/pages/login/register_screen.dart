@@ -1,6 +1,6 @@
+import 'package:apple_leaf/main_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../../configs/theme.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 
@@ -68,7 +68,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 24),
 
         CustomButton(
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+              (route) => false,
+            );
+          },
           text: 'Daftar',
         )
       ],

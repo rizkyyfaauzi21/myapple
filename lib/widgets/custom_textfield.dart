@@ -65,6 +65,7 @@ class CustomTextField extends StatelessWidget {
   final double borderradius;
   final String? hint;
   final VoidCallback? onTap;
+  final IconData? prefixIcon;
   const CustomTextField({
     super.key,
     this.controller,
@@ -77,6 +78,7 @@ class CustomTextField extends StatelessWidget {
     this.borderradius = 64,
     this.hint,
     this.onTap,
+    this.prefixIcon,
   });
 
   @override
@@ -91,12 +93,11 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         filled: true,
         fillColor: backgroundColor,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: neutral400) : null,
         suffixIcon: isPassword
             ? GestureDetector(
                 onTap: onTap,
-                child: !obscureText
-                    ? const Icon(IconsaxPlusLinear.eye)
-                    : const Icon(IconsaxPlusLinear.eye_slash),
+                child: !obscureText ? const Icon(IconsaxPlusLinear.eye) : const Icon(IconsaxPlusLinear.eye_slash),
               )
             : null,
         hintText: hint,
