@@ -2,14 +2,23 @@ import 'package:apple_leaf/widgets/home/beranda_pindai_card.dart';
 import 'package:apple_leaf/widgets/home/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../provider/auth_provider.dart';
 
-class BerandaPage extends StatelessWidget {
+class BerandaPage extends ConsumerWidget {
   final Function(int) updateIndex;
   const BerandaPage({super.key, required this.updateIndex});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     bool isEventEmpty = false;
+
+    // Access the authentication state
+    final authState = ref.watch(authProvider);
+    final userData = authState.userData;
+
+    // Get the user's name, or use a default if it's null
+    final userName = userData?['name'] ?? 'Pengguna';
 
     return Scaffold(
       appBar: AppBar(
@@ -37,9 +46,9 @@ class BerandaPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Rizky Fauzi!',
+                  '$userName!',
                   style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
-                )
+                ),
               ],
             )
           ],

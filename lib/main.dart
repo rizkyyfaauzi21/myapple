@@ -1,25 +1,32 @@
-import 'package:apple_leaf/configs/theme.dart';
-import 'package:apple_leaf/splash_screen.dart';
+// File: lib/main.dart
+
 import 'package:flutter/material.dart';
-// import 'main_screen.dart';
-// import 'pages/login/auth_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'pages/login/auth_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Apple Leaf',
-      theme: ThemeData(
-        fontFamily: 'Inter',
-        scaffoldBackgroundColor: neutralWhite,
-      ),
-      home: const SplashScreen(),
+      theme: _buildTheme(),
+      home: const AuthPage(),
+    );
+  }
+
+  // Modularisasi tema untuk kemudahan perawatan
+  ThemeData _buildTheme() {
+    return ThemeData(
+      primarySwatch: Colors.blue,
+      fontFamily: 'Inter',
     );
   }
 }
