@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
@@ -39,7 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   final _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://127.0.0.1:8000/api'; // Adjust based on your environment
+  final String baseUrl = Platform.isAndroid ? 'http://10.0.2.2:8000/api' : 'http://127.0.0.1:8000/api' ; // Adjust based on your environment
 
   // Load user data on initialization
   Future<void> _loadUserData() async {
