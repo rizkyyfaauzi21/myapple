@@ -1,8 +1,10 @@
+import 'package:apple_leaf/pages/history/scan_page.dart';
 import 'package:apple_leaf/widgets/home/beranda_pindai_card.dart';
 import 'package:apple_leaf/widgets/home/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../provider/auth_provider.dart';
 
 class BerandaPage extends ConsumerWidget {
@@ -58,7 +60,17 @@ class BerandaPage extends ConsumerWidget {
         children: [
           // Pindai
           BerandaPindaiCard(
-            onScan: () {},
+            // onScan: () {},
+            onScan: () async {
+              final image = await ImagePicker().pickImage(source: ImageSource.camera);
+              if (image != null) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    return ScanPage(title: 'title', image: image);
+                  },
+                ));
+              }
+            },
           ),
 
           const SizedBox(height: 16),
