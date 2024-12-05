@@ -1,31 +1,42 @@
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/pages/artikel/detail_artikel_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class ArtikelCard extends StatelessWidget {
   final String label;
   final String title;
-  final String image;
+  final String image_path;
+  final int articleId;
+  final String content; // Menambahkan ID artikel
   const ArtikelCard({
     super.key,
     required this.label,
     required this.title,
-    required this.image,
+    required this.image_path,
+    required this.articleId,
+    required this.content, // Menambahkan parameter ID artikel
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Kirim ID artikel ke DetailArtikelPage
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => DetailArtikelPage(title: title),
+            builder: (context) => DetailArtikelPage(
+                articleId: articleId,
+                title: title,
+                label: label,
+                image_path: image_path,
+                content: content),
           ),
         );
       },
       child: Container(
-        height: 100 + 16,
+        height: 116, // Memastikan tinggi sudah sesuai
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -36,11 +47,24 @@ class ArtikelCard extends StatelessWidget {
           children: [
             Container(
               width: 100,
+              height: 100, // Menambahkan height agar ukuran jelas
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: AssetImage(image),
-                  fit: BoxFit.cover,
+              ),
+              clipBehavior:
+                  Clip.antiAlias, // Agar radius diterapkan pada gambar
+              child: CachedNetworkImage(
+                imageUrl: image_path,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => const Icon(
+                  Icons.broken_image,
+                  size: 50,
+                  color: Colors.grey,
+                ),
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    Center(
+                  child: CircularProgressIndicator(
+                      value: downloadProgress.progress),
                 ),
               ),
             ),
@@ -58,7 +82,8 @@ class ArtikelCard extends StatelessWidget {
                           color: neutral50,
                           borderRadius: BorderRadius.circular(64),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         child: Text(
                           label,
                           style: regularTS.copyWith(
