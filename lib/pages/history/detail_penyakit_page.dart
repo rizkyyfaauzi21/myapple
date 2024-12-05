@@ -51,7 +51,7 @@ class DetailPenyakitPage extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: neutral50,
+                      color: neutralWhite,
                       border: Border.all(color: neutral100),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -85,7 +85,8 @@ class DetailPenyakitPage extends StatelessWidget {
                       indicatorColor: green700,
                       overlayColor: const MaterialStatePropertyAll(green50),
                       labelStyle: mediumTS.copyWith(fontSize: 16, color: green700),
-                      unselectedLabelStyle: mediumTS.copyWith(fontSize: 16, color: neutral400),
+                      unselectedLabelStyle:
+                          mediumTS.copyWith(fontSize: 16, color: neutral400),
                       tabs: const [
                         Tab(child: Text('Definisi')),
                         Tab(child: Text('Gejala')),
