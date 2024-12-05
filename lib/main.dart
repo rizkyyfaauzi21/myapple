@@ -1,5 +1,6 @@
 // File: lib/main.dart
 
+import 'package:apple_leaf/configs/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       primarySwatch: Colors.blue,
       fontFamily: 'Inter',
+      scaffoldBackgroundColor: neutralWhite,
     );
   }
 }

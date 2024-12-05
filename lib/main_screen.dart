@@ -2,9 +2,11 @@ import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/pages/account/profil_page.dart';
 import 'package:apple_leaf/pages/artikel/artikel_page.dart';
 import 'package:apple_leaf/pages/history/riwayat_page.dart';
+import 'package:apple_leaf/pages/history/scan_page.dart';
 import 'package:apple_leaf/pages/home/beranda_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -35,7 +37,16 @@ class _MainScreenState extends State<MainScreen> {
       // FLOATING BUTTON
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          final image = await ImagePicker().pickImage(source: ImageSource.camera);
+          if (image != null) {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) {
+                return ScanPage(title: 'title', image: image);
+              },
+            ));
+          }
+        },
         backgroundColor: green700,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(64)),
