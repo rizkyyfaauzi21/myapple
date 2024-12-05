@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:apple_leaf/pages/login/forgot_password_page.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../configs/theme.dart';
 import '../../main_screen.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
+import '../../provider/auth_provider.dart';
+import 'forgot_password_page.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordFocus = FocusNode();
   bool passwordHidden = true;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -25,6 +27,37 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
     passwordFocus.dispose();
     super.dispose();
+  }
+
+  Future<void> handleLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    await ref.read(authProvider.notifier).login(email, password);
+    final authState = ref.read(authProvider);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (authState.token != null) {
+      // Access user data if needed
+      final userData = authState.userData;
+      print('User Data: $userData');
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+        (route) => false,
+      );
+    } else if (authState.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authState.error!)),
+      );
+    }
   }
 
   @override
@@ -43,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 12),
 
         // Password
-
         CustomForm(
           title: 'Password',
           controller: passwordController,
@@ -76,15 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
         const SizedBox(height: 12),
 
-        CustomButton(
-          onTap: () {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainScreen()),
-              (route) => false,
-            );
-          },
-          text: 'Masuk',
-        )
+        isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : CustomButton(
+                onTap: handleLogin,
+                text: 'Masuk',
+              ),
       ],
     );
   }

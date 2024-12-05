@@ -7,14 +7,24 @@ import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/custom_button.dart';
+import '../../provider/auth_provider.dart';
 
-class ProfilPage extends StatelessWidget {
+class ProfilPage extends ConsumerWidget {
   const ProfilPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
+    // Get user data from auth state
+    final userData = authState.userData;
+
+    // If userData is null, show a loading indicator or default values
+    final userName = userData?['name'] ?? 'Loading...';
+    final userEmail = userData?['email'] ?? 'Loading...';
+
     return Scaffold(
       appBar: mainAppBar(context, title: 'Profil'),
       body: ListView(
@@ -41,14 +51,14 @@ class ProfilPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rizky Fauzi',
+                      userName,
                       style: mediumTS.copyWith(
                         fontSize: 16,
                         color: neutralBlack,
                       ),
                     ),
                     Text(
-                      'rizkyfauzi01@gmail.com',
+                      userEmail,
                       style: regularTS.copyWith(
                         color: neutral400,
                       ),
@@ -96,8 +106,8 @@ class ProfilPage extends StatelessWidget {
                   icon: IconsaxPlusLinear.logout,
                   iconColor: redBase,
                   title: 'Keluar',
-                  onTap: () => handleLogout(context),
-                )
+                  onTap: () => handleLogout(context, ref),
+                ),
               ],
             ),
           ),
@@ -106,7 +116,7 @@ class ProfilPage extends StatelessWidget {
     );
   }
 
-  Future<void> handleLogout(BuildContext context) {
+  Future<void> handleLogout(BuildContext context, WidgetRef ref) async {
     return showDialog(
       context: context,
       builder: (context) => CustomDialog(
@@ -120,10 +130,17 @@ class ProfilPage extends StatelessWidget {
                   isDialogButton: true,
                   text: 'Keluar',
                   backgroundColor: redBase,
-                  onTap: () => Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const AuthPage()),
-                    (route) => false,
-                  ),
+                  onTap: () async {
+                    Navigator.of(context).pop(); // Close the dialog
+                    // Perform logout
+                    final authNotifier = ref.read(authProvider.notifier);
+                    await authNotifier.logout();
+                    // Navigate to AuthPage
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const AuthPage()),
+                      (route) => false,
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 4),
@@ -134,7 +151,7 @@ class ProfilPage extends StatelessWidget {
                   backgroundColor: neutralWhite,
                   borderColor: neutral100,
                   textColor: neutralBlack,
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () => Navigator.of(context).pop(), // Close the dialog
                 ),
               ),
             ],
