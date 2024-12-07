@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:apple_leaf/pages/history/scan_page.dart';
+import 'package:apple_leaf/provider/imageScan_provider.dart';
 import 'package:apple_leaf/widgets/home/beranda_pindai_card.dart';
 import 'package:apple_leaf/widgets/home/custom_card.dart';
 import 'package:flutter/material.dart';
@@ -64,12 +67,33 @@ class BerandaPage extends ConsumerWidget {
             onScan: () async {
               final image = await ImagePicker().pickImage(source: ImageSource.camera);
               if (image != null) {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) {
-                    return ScanPage(title: 'title', image: image);
-                  },
-                ));
-              }
+            final file = File(image.path);
+
+            try {
+              // Akses fungsi upload dari provider
+              final result = await ref.read(imageUploadProvider).handleImageUpload(file, context);
+
+              // Pindah ke ScanPage dengan hasil prediksi
+              Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ScanPage(
+                        image: XFile(file.path),  // Mengirim XFile ke ScanPage
+                        title: result['predicted_label'],  // Hasil prediksi label
+                        predictedLabel: result['predicted_label'],
+                        category: result['category'],  // Data kategori
+                        userId: userData!['id'],
+                      );
+                    },
+                  ),
+                );
+            } catch (e) {
+              print("Error: $e");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Failed to upload image: $e")),
+              );
+            }
+          }
             },
           ),
 
