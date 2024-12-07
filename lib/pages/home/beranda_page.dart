@@ -14,6 +14,9 @@ class BerandaPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool isEventEmpty = false;
+    String? profilePicturePath;
+    final authNotifier = ref.read(authProvider.notifier);
+    final baseImageUrl = authNotifier.baseImageUrl;
 
     // Access the authentication state
     final authState = ref.watch(authProvider);
@@ -21,6 +24,7 @@ class BerandaPage extends ConsumerWidget {
 
     // Get the user's name, or use a default if it's null
     final userName = userData?['name'] ?? 'Pengguna';
+    profilePicturePath = userData?['profile_picture'];
 
     return Scaffold(
       appBar: AppBar(
@@ -29,8 +33,10 @@ class BerandaPage extends ConsumerWidget {
           children: [
             GestureDetector(
               onTap: () => updateIndex(3),
-              child: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/1.jpg'),
+              child: CircleAvatar(
+                backgroundImage: profilePicturePath != null
+                    ? NetworkImage('$baseImageUrl/storage/$profilePicturePath')
+                    : const AssetImage('assets/images/icon.jpg'),
               ),
             ),
             const SizedBox(
@@ -62,7 +68,8 @@ class BerandaPage extends ConsumerWidget {
           BerandaPindaiCard(
             // onScan: () {},
             onScan: () async {
-              final image = await ImagePicker().pickImage(source: ImageSource.camera);
+              final image =
+                  await ImagePicker().pickImage(source: ImageSource.camera);
               if (image != null) {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) {

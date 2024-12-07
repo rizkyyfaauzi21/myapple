@@ -1,10 +1,13 @@
-import 'package:apple_leaf/configs/theme.dart';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_textfield.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/auth_provider.dart';
 
 class EditProfil extends ConsumerStatefulWidget {
@@ -17,6 +20,11 @@ class EditProfil extends ConsumerStatefulWidget {
 class _EditProfilState extends ConsumerState<EditProfil> {
   late TextEditingController namaController;
   late TextEditingController emailController;
+  String? profilePicturePath;
+
+  Uint8List? _imageBytes;
+  XFile? _pickedFile;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -26,6 +34,7 @@ class _EditProfilState extends ConsumerState<EditProfil> {
 
     namaController = TextEditingController(text: userData?['name'] ?? '');
     emailController = TextEditingController(text: userData?['email'] ?? '');
+    profilePicturePath = userData?['profile_picture'];
   }
 
   @override
@@ -35,31 +44,108 @@ class _EditProfilState extends ConsumerState<EditProfil> {
     super.dispose();
   }
 
-  bool isLoading = false;
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = bytes;
+        _pickedFile = pickedFile;
+      });
+    }
+  }
+
+  Future<void> handleSave() async {
+    final name = namaController.text.trim();
+    final email = emailController.text.trim();
+
+    if (name.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nama dan Email tidak boleh kosong.')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final authNotifier = ref.read(authProvider.notifier);
+
+    // Update nama dan email
+    final errorMessage = await authNotifier.updateProfile(
+      name: name,
+      email: email,
+    );
+
+    if (errorMessage != null) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+      return;
+    }
+
+    // Jika ada gambar yang dipilih, upload gambarnya
+    if (_pickedFile != null) {
+      final uploadError = await authNotifier.uploadPhotoProfile(
+        _imageBytes!,
+        _pickedFile!.name, // Gunakan nama file asli
+      );
+      if (uploadError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(uploadError)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto profil berhasil diperbarui.')),
+        );
+      }
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final authNotifier = ref.read(authProvider.notifier);
+    final baseImageUrl = authNotifier.baseImageUrl;
 
     return Scaffold(
       appBar: customAppBar(context, title: 'Ubah Profil'),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          // Foto Profil dengan ikon edit
-          const Center(
+          Center(
             child: Stack(
               alignment: Alignment.bottomRight,
               children: [
                 CircleAvatar(
                   radius: 70,
-                  backgroundImage: AssetImage('assets/images/1.jpg'),
                   backgroundColor: neutral100,
+                  backgroundImage: _imageBytes != null
+                      ? MemoryImage(_imageBytes!)
+                      : (profilePicturePath != null
+                              ? NetworkImage(
+                                  '$baseImageUrl/storage/$profilePicturePath')
+                              : const AssetImage('assets/images/icon.jpg'))
+                          as ImageProvider,
                 ),
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: green700,
-                  child: Icon(IconsaxPlusLinear.edit, color: Colors.white),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: const CircleAvatar(
+                    radius: 20,
+                    backgroundColor: green700,
+                    child: Icon(Icons.edit, color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -75,6 +161,7 @@ class _EditProfilState extends ConsumerState<EditProfil> {
           ),
 
           const SizedBox(height: 16),
+
           // Input untuk Email
           CustomForm(
             title: 'Email',
@@ -104,43 +191,5 @@ class _EditProfilState extends ConsumerState<EditProfil> {
         ],
       ),
     );
-  }
-
-  Future<void> handleSave() async {
-    final name = namaController.text.trim();
-    final email = emailController.text.trim();
-
-    if (name.isEmpty || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama dan Email tidak boleh kosong.')),
-      );
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    final authNotifier = ref.read(authProvider.notifier);
-    final errorMessage = await authNotifier.updateProfile(
-      name: name,
-      email: email,
-    );
-
-    setState(() {
-      isLoading = false;
-    });
-
-    if (errorMessage != null) {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
-    } else {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil berhasil diperbarui.')),
-      );
-    }
   }
 }
