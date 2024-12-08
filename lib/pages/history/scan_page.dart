@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/provider/apple_service.dart';
 import 'package:apple_leaf/provider/auth_provider.dart';
+import 'package:apple_leaf/widgets/apple/apple_card.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_dialog.dart';
@@ -20,7 +21,6 @@ class ScanPage extends ConsumerWidget {
   final String predictedLabel;
   final int userId;
   final Map<String, dynamic> category;
-
   const ScanPage({
     super.key,
     required this.image,
@@ -34,6 +34,7 @@ class ScanPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final koleksiController = TextEditingController();
 
+    final appleNotifier = ref.read(appleProvider(userId.toString()).notifier);
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -41,8 +42,13 @@ class ScanPage extends ConsumerWidget {
           context,
           actions: [
             TextButton(
-              onPressed: () =>
-                  handleSimpanPenyakit(context, koleksiController, ref),
+              onPressed: () {
+                // Panggil fetchApples dari appleNotifier
+                appleNotifier.fetchApples();
+                // Panggil handleSimpanPenyakit
+                handleSimpanPenyakit(context, koleksiController, ref);
+                // appleNotifier.fetchApples();
+              },
               child: Text(
                 'Simpan',
                 style: mediumTS.copyWith(fontSize: 16, color: neutralBlack),
@@ -146,6 +152,10 @@ class ScanPage extends ConsumerWidget {
     TextEditingController koleksiController,
     WidgetRef ref,
   ) {
+    final appleState = ref.watch(appleProvider(userId.toString()));
+    // Debugging: Tampilkan data di konsol
+
+    print('Data Apel: ${appleState.apples}');
     return showModalBottomSheet(
       context: context,
       backgroundColor: neutralWhite,
@@ -185,42 +195,24 @@ class ScanPage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: FileImage(File(image.path)),
-                        fit: BoxFit.cover,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: appleState.apples.length,
+                  itemBuilder: (context, index) {
+                    // Ambil data apel untuk tiap item
+                    final apple = appleState.apples[index];
+                    return Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: 12), // Jarak antar item
+                      child: AppleCard(
+                        imagePath: apple['image_url'] ??
+                            'assets/images/default_image.png',
+                        appleName: apple['nama_apel'] ?? 'Unknown Apple',
+                        lastScan: 'Terakhir discan 1 hari yang lalu',
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Apel 1',
-                        style: mediumTS.copyWith(
-                            fontSize: 16, color: neutralBlack),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Terakhir discan 1 hari yang lalu',
-                        style:
-                            regularTS.copyWith(fontSize: 14, color: neutral400),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(IconsaxPlusLinear.add_circle),
-                  ),
-                ],
+                    );
+                  },
+                ),
               )
             ],
           ),
@@ -314,8 +306,8 @@ class ScanPage extends ConsumerWidget {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
-                                          content: Text(
-                                              'Gagal menyimpan koleksi!'),
+                                          content:
+                                              Text('Gagal menyimpan koleksi!'),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
@@ -350,39 +342,40 @@ class ScanPage extends ConsumerWidget {
       },
     );
   }
+
   Future<void> handleDeleteRiwayat(BuildContext context) {
-  return showDialog(
-    context: context,
-    builder: (context) => CustomDialog(
-      title: 'Hapus riwayat ini?',
-      subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
-      actions: [
-        Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                isDialogButton: true,
-                text: 'Hapus',
-                backgroundColor: redBase,
-                onTap: () {},
+    return showDialog(
+      context: context,
+      builder: (context) => CustomDialog(
+        title: 'Hapus riwayat ini?',
+        subtitle:
+            'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  isDialogButton: true,
+                  text: 'Hapus',
+                  backgroundColor: redBase,
+                  onTap: () {},
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: CustomButton(
-                isDialogButton: true,
-                text: 'Batal',
-                backgroundColor: neutralWhite,
-                borderColor: neutral100,
-                textColor: neutralBlack,
-                onTap: () => Navigator.of(context).pop(),
+              const SizedBox(width: 4),
+              Expanded(
+                child: CustomButton(
+                  isDialogButton: true,
+                  text: 'Batal',
+                  backgroundColor: neutralWhite,
+                  borderColor: neutral100,
+                  textColor: neutralBlack,
+                  onTap: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+            ],
+          ),
+        ],
+      ),
+    );
   }
-  
 }
