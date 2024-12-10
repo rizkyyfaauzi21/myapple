@@ -9,7 +9,6 @@ import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:apple_leaf/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:apple_leaf/widgets/history/detail_penyakit_tab.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -207,8 +206,12 @@ class ScanPage extends ConsumerWidget {
                       child: AppleCard(
                         imagePath: apple['image_url'] ??
                             'assets/images/default_image.png',
+                        scanImagePath: image,
                         appleName: apple['nama_apel'] ?? 'Unknown Apple',
                         lastScan: 'Terakhir discan 1 hari yang lalu',
+                        appleId: apple['id'].toString(),
+                        userId: userId.toString(),
+                        diseaseInfoId: category['id'].toString(),
                       ),
                     );
                   },
