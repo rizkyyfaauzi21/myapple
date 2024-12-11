@@ -9,13 +9,11 @@ import 'package:apple_leaf/pages/home/beranda_page.dart';
 import 'package:apple_leaf/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http; // Import HTTP package
-import 'package:path/path.dart';
-import 'package:mime/mime.dart';
 import 'package:apple_leaf/provider/imageScan_provider.dart';
+
+final isUploadingProvider = StateProvider<bool>((ref) => false);
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -48,49 +46,76 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
       // FLOATING BUTTON
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final image =
-              await ImagePicker().pickImage(source: ImageSource.camera);
-          if (image != null) {
-            final file = File(image.path);
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final isUploading = ref.watch(isUploadingProvider);
+          
+          return FloatingActionButton(
+            onPressed: isUploading 
+                ? null 
+                : () async {
+                    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+                    if (image != null) {
+                      final file = File(image.path);
+                      try {
+                        // Set loading state
+                        ref.read(isUploadingProvider.notifier).state = true;
+                        
+                        // Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
 
-            try {
-              // Akses fungsi upload dari provider
-              final result = await ref
-                  .read(imageUploadProvider)
-                  .handleImageUpload(file, context);
+                        final result = await ref
+                            .read(imageUploadProvider)
+                            .handleImageUpload(file, context);
 
-              // Pindah ke ScanPage dengan hasil prediksi
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ScanPage(
-                      image: XFile(file.path), // Mengirim XFile ke ScanPage
-                      title: result['predicted_label'], // Hasil prediksi label
-                      predictedLabel: result['predicted_label'],
-                      category: result['category'], // Data kategori
-                      userId: userData!['id'],
-                    );
+                        // Hide loading dialog
+                        if (context.mounted) Navigator.pop(context);
+
+                        // Navigate to ScanPage
+                        if (context.mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ScanPage(
+                                image: XFile(file.path),
+                                title: result['predicted_label'],
+                                predictedLabel: result['predicted_label'],
+                                category: result['category'],
+                                userId: userData!['id'],
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Hide loading dialog
+                        if (context.mounted) Navigator.pop(context);
+                        
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Failed to upload image: $e")),
+                          );
+                        }
+                      } finally {
+                        // Reset loading state
+                        ref.read(isUploadingProvider.notifier).state = false;
+                      }
+                    }
                   },
-                ),
-              );
-            } catch (e) {
-              print("Error: $e");
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Failed to upload image: $e")),
-              );
-            }
-          }
+            backgroundColor: isUploading ? Colors.grey : green700,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(64)),
+            ),
+            child: Icon(
+              isUploading ? Icons.hourglass_empty : IconsaxPlusLinear.camera,
+              color: neutralWhite,
+            ),
+          );
         },
-        backgroundColor: green700,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(64)),
-        ),
-        child: const Icon(
-          IconsaxPlusLinear.camera,
-          color: neutralWhite,
-        ),
       ),
 
       // FLOATING BUTTON END
