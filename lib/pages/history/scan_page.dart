@@ -41,12 +41,13 @@ class ScanPage extends ConsumerWidget {
           context,
           actions: [
             TextButton(
-              onPressed: () {
-                // Panggil fetchApples dari appleNotifier
-                appleNotifier.fetchApples();
-                // Panggil handleSimpanPenyakit
-                handleSimpanPenyakit(context, koleksiController, ref);
-                // appleNotifier.fetchApples();
+              onPressed: () async {
+                // Panggil handleSimpanPenyakit terlebih dahulu
+                await handleSimpanPenyakit(context, koleksiController, ref);
+                // Setelah selesai, baru fetch data terbaru
+                if (context.mounted) {
+                  appleNotifier.fetchApples();
+                }
               },
               child: Text(
                 'Simpan',
@@ -88,7 +89,9 @@ class ScanPage extends ConsumerWidget {
                     child: Column(
                       children: [
                         Text(
-                          'Terjangkit $title',
+                          title.toLowerCase() == 'healthy' 
+                              ? 'Apel anda sehat'
+                              : 'Terjangkit $title',
                           style: mediumTS.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: 4),
@@ -120,6 +123,7 @@ class ScanPage extends ConsumerWidget {
                       tabs: const [
                         Tab(child: Text('Definisi')),
                         Tab(child: Text('Gejala')),
+                        Tab(child: Text('Solusi')),
                       ],
                     ),
                   ),
@@ -135,7 +139,10 @@ class ScanPage extends ConsumerWidget {
                     text: category['description'] ?? 'Deskripsi tidak tersedia',
                   ),
                   DetailPenyakitTab(
-                    text: category['treatment'] ?? 'Gejala tidak tersedia',
+                    text: category['symptoms'] ?? 'Gejala tidak tersedia',
+                  ),
+                  DetailPenyakitTab(
+                    text: category['treatment'] ?? 'Penanganan tidak tersedia',
                   ),
                 ],
               ),
@@ -151,74 +158,74 @@ class ScanPage extends ConsumerWidget {
     TextEditingController koleksiController,
     WidgetRef ref,
   ) {
-    final appleState = ref.watch(appleProvider(userId.toString()));
-    // Debugging: Tampilkan data di konsol
-
-    print('Data Apel: ${appleState.apples}');
     return showModalBottomSheet(
       context: context,
       backgroundColor: neutralWhite,
       builder: (context) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 37),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lorem Ipsum',
-                style: mediumTS.copyWith(fontSize: 18, color: neutralBlack),
-              ),
-              Text(
-                'lorem Ipsum Dolor Sit Amet',
-                style: regularTS.copyWith(fontSize: 14, color: neutral400),
-              ),
-              const SizedBox(height: 12),
-              const Divider(),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Consumer(
+          builder: (context, ref, child) {
+            final appleState = ref.watch(appleProvider(userId.toString()));
+            
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 37),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Koleksimu',
+                    'Lorem Ipsum',
                     style: mediumTS.copyWith(fontSize: 18, color: neutralBlack),
                   ),
-                  GestureDetector(
-                    onTap: () =>
-                        handleKoleksiBaru(context, koleksiController, ref),
-                    child: Text(
-                      'Koleksi Baru',
-                      style: mediumTS.copyWith(fontSize: 12, color: green700),
+                  Text(
+                    'lorem Ipsum Dolor Sit Amet',
+                    style: regularTS.copyWith(fontSize: 14, color: neutral400),
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Koleksimu',
+                        style: mediumTS.copyWith(fontSize: 18, color: neutralBlack),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            handleKoleksiBaru(context, koleksiController, ref),
+                        child: Text(
+                          'Koleksi Baru',
+                          style: mediumTS.copyWith(fontSize: 12, color: green700),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: appleState.apples.length,
+                      itemBuilder: (context, index) {
+                        final apple = appleState.apples[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: AppleCard(
+                            imagePath: apple['image_url'] ??
+                                'assets/images/default_image.png',
+                            scanImagePath: image,
+                            appleName: apple['nama_apel'] ?? 'Unknown Apple',
+                            lastScan: 'Terakhir discan 1 hari yang lalu',
+                            appleId: apple['id'].toString(),
+                            userId: userId.toString(),
+                            diseaseInfoId: category['id'].toString(),
+                          ),
+                        );
+                      },
                     ),
                   )
                 ],
               ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: appleState.apples.length,
-                  itemBuilder: (context, index) {
-                    // Ambil data apel untuk tiap item
-                    final apple = appleState.apples[index];
-                    return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 12), // Jarak antar item
-                      child: AppleCard(
-                        imagePath: apple['image_url'] ??
-                            'assets/images/default_image.png',
-                        scanImagePath: image,
-                        appleName: apple['nama_apel'] ?? 'Unknown Apple',
-                        lastScan: 'Terakhir discan 1 hari yang lalu',
-                        appleId: apple['id'].toString(),
-                        userId: userId.toString(),
-                        diseaseInfoId: category['id'].toString(),
-                      ),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -232,6 +239,9 @@ class ScanPage extends ConsumerWidget {
     return showDialog(
       context: context,
       builder: (context) {
+        // Reset controller when dialog opens
+        koleksiController.clear();
+        
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -258,27 +268,32 @@ class ScanPage extends ConsumerWidget {
                       backgroundColor: Colors.white,
                       borderColor: Colors.grey,
                       textColor: Colors.black,
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        koleksiController.clear(); // Clear when canceling
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, _) {
-                        final isLoading =
-                            ref.watch(isSavingProvider); // State loading
+                        final isLoading = ref.watch(isSavingProvider);
 
                         return CustomButton(
                           isDialogButton: true,
                           text: isLoading ? 'Menyimpan...' : 'Simpan',
                           backgroundColor: isLoading ? Colors.grey : green700,
                           onTap: isLoading
-                              ? null // Nonaktifkan tombol jika sedang loading
+                              ? null
                               : () async {
                                   final appleService =
                                       ref.read(appleServiceProvider);
                                   final notifier =
                                       ref.read(isSavingProvider.notifier);
+                                  final appleNotifier =
+                                      ref.read(appleProvider(userId.toString())
+                                          .notifier);
 
                                   try {
                                     notifier.state = true; // Set loading
@@ -291,7 +306,12 @@ class ScanPage extends ConsumerWidget {
                                       userId: userId.toString(),
                                     );
 
-                                    // Tutup dialog setelah berhasil
+                                    // Refresh apple list
+                                    await appleNotifier.fetchApples();
+
+                                    // Clear controller after successful save
+                                    koleksiController.clear();
+                                    
                                     Navigator.of(context).pop();
 
                                     // Menampilkan SnackBar hanya setelah addApple berhasil
@@ -302,16 +322,6 @@ class ScanPage extends ConsumerWidget {
                                           content: Text(
                                               'Koleksi berhasil disimpan!'),
                                           backgroundColor: green700,
-                                        ),
-                                      );
-                                    } else {
-                                      // Menampilkan SnackBar jika addApple gagal
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Gagal menyimpan koleksi!'),
-                                          backgroundColor: Colors.red,
                                         ),
                                       );
                                     }
