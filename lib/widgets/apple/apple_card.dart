@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:apple_leaf/provider/history_service.dart';
 import 'package:apple_leaf/provider/scan_notifier.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -72,10 +73,7 @@ class AppleCard extends ConsumerWidget {
         const Spacer(),
         GestureDetector(
           onTap: () async {
-            // Mendapatkan ScanNotifier dari provider
-            // Ganti sesuai penyakit yang terdeteksi
             final scanNotifier = ref.read(scanNotifierProvider.notifier);
-            //buatkan scan date
             final scanDate = DateTime.now().toIso8601String();
             try {
               // Simpan diagnosis
@@ -86,6 +84,9 @@ class AppleCard extends ConsumerWidget {
                 imagePath: scanImagePath.path,
                 diseaseInfoId: diseaseInfoId,
               );
+
+              // Refresh history list
+              ref.refresh(appleHistoryProvider(appleId));
 
               // Tampilkan notifikasi sukses
               if (context.mounted) {
