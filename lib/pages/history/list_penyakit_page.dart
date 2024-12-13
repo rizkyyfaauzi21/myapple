@@ -1,35 +1,32 @@
 import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/provider/history_service.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_textfield.dart';
 import 'package:apple_leaf/widgets/history/list_penyakit_card.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ListPenyakitPage extends StatefulWidget {
-  final String? label;
-  const ListPenyakitPage({super.key, required this.label});
+class ListPenyakitPage extends ConsumerWidget {
+  final String label;
+  final String appleId;
 
-  @override
-  State<ListPenyakitPage> createState() => _ListPenyakitPageState();
-}
-
-class _ListPenyakitPageState extends State<ListPenyakitPage> {
-  final searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
+  const ListPenyakitPage({
+    super.key,
+    required this.label,
+    required this.appleId,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchController = TextEditingController();
+    final historyState = ref.watch(appleHistoryProvider(appleId));
+
     return Scaffold(
       backgroundColor: neutralWhite,
-      appBar: customAppBar(context, title: widget.label.toString()),
+      appBar: customAppBar(context, title: label),
       body: Column(
         children: [
-          // Search Bar
           Padding(
             padding: const EdgeInsets.all(12),
             child: CustomTextField(
@@ -38,21 +35,36 @@ class _ListPenyakitPageState extends State<ListPenyakitPage> {
               controller: searchController,
             ),
           ),
-
-          // List of Penyakit
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                return ListPenyakitCard(
-                  image: 'assets/images/daun_article.png',
-                  title: 'Fire Blight ${index + 1}',
-                  date: '10 November 2024',
-                );
-              },
-            ),
-          ),
+            child: historyState.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : historyState.error != null
+                    ? Center(child: Text(historyState.error!))
+                    : historyState.histories.isEmpty
+                        ? const Center(child: Text('Belum ada riwayat'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            itemCount: historyState.histories.length,
+                            itemBuilder: (context, index) {
+                              final history = historyState.histories[index];
+                              final historyData =
+                                  history['history'] as Map<String, dynamic>;
+                              final diseaseInfo = historyData['disease_info']
+                                  as Map<String, dynamic>;
+
+                              return ListPenyakitCard(
+                                image: historyData['scan_image_path'] ??
+                                    'assets/images/daun_article.png',
+                                title: diseaseInfo['category'] ??
+                                    'Unknown Disease',
+                                date: historyData['scan_date'] ?? '-',
+                                description: diseaseInfo['description'] ?? '-',
+                                symptom: diseaseInfo['symptoms'] ?? '-',
+                                solution: diseaseInfo['treatment'] ?? '-',
+                              );
+                            },
+                          ),
+          )
         ],
       ),
     );
