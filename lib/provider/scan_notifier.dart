@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +9,7 @@ import 'package:http_parser/http_parser.dart';
 
 class ScanNotifier extends StateNotifier<void> {
   ScanNotifier() : super(null);
-
+  final baseUrl = ApiConfig.baseApiUrl;
   Future<void> saveDiagnosis({
     required String appleId,
     required String userId,
@@ -20,7 +21,7 @@ class ScanNotifier extends StateNotifier<void> {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://10.0.2.2:8000/api/histories'),
+        Uri.parse('$baseUrl/histories'),
       );
 
       // Add headers
@@ -57,7 +58,7 @@ class ScanNotifier extends StateNotifier<void> {
 
       // Simpan ke apple_history
       final appleHistoryResponse = await http.post(
-        Uri.parse('http://10.0.2.2:8000/api/appleHistories'),
+        Uri.parse('$baseUrl/appleHistories'),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',

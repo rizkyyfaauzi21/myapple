@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,7 +80,7 @@ class AppleService {
 
 /// **Provider untuk AppleService**
 final appleServiceProvider = Provider<AppleService>((ref) {
-  const baseUrl = 'http://10.0.2.2:8000/api'; // Ganti dengan URL API Anda
+  const baseUrl = ApiConfig.baseApiUrl; // Ganti dengan URL API Anda
   return AppleService(baseUrl: baseUrl);
 });
 

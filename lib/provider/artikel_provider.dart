@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -34,14 +35,12 @@ class ArtikelNotifier extends StateNotifier<ArtikelState> {
     fetchArticles();
   }
 
-  final baseUrl = Platform.isAndroid
-      ? 'http://10.0.2.2:8000/api/'
-      : 'http://127.0.0.1:8000/api/';
+  final baseUrl = ApiConfig.baseApiUrl;
 
   Future<void> fetchArticles() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/articles'),
+        Uri.parse('$baseUrl/articles'),
         headers: {'Accept': 'application/json'},
       );
 
