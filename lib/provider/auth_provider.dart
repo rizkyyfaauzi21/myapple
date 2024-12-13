@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'dart:io';
 
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
@@ -46,9 +47,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   final _storage = const FlutterSecureStorage();
-  final String baseUrl = Platform.isAndroid
-      ? 'http://10.0.2.2:8000/api'
-      : 'http://127.0.0.1:8000/api';
+  final String baseUrl = ApiConfig.baseApiUrl;
   // final String baseUrl = 'http://127.0.0.1:8000/api';
   // final String baseUrl = 'http://192.168.1.4:8000/api';
 
