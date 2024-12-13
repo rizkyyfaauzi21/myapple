@@ -6,20 +6,20 @@ class CustomCard extends StatelessWidget {
   final String label;
   final String waktuScan;
   final String image;
+  final VoidCallback? onTap;
 
   const CustomCard({
     super.key,
     required this.label,
     required this.waktuScan,
     required this.image,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => ListPenyakitPage(label: label)),
-      ),
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: neutral50,
