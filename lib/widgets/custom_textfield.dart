@@ -3,7 +3,6 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 
 import '../configs/theme.dart';
 
-// CustomForm widget
 class CustomForm extends StatelessWidget {
   final String title;
   final TextEditingController? controller;
@@ -16,8 +15,6 @@ class CustomForm extends StatelessWidget {
   final double borderradius;
   final String? hint;
   final VoidCallback? onTap;
-  final ValueChanged<String>? onChanged; // Add the onChanged parameter
-
   const CustomForm({
     super.key,
     required this.title,
@@ -31,7 +28,6 @@ class CustomForm extends StatelessWidget {
     this.borderradius = 64,
     this.hint,
     this.onTap,
-    this.onChanged, // Include onChanged
   });
 
   @override
@@ -39,8 +35,7 @@ class CustomForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style: mediumTS.copyWith(fontSize: 16, color: neutralBlack)),
+        Text(title, style: mediumTS.copyWith(fontSize: 16, color: neutralBlack)),
         const SizedBox(height: 8),
         CustomTextField(
           controller: controller,
@@ -53,14 +48,12 @@ class CustomForm extends StatelessWidget {
           borderradius: borderradius,
           hint: hint,
           onTap: onTap,
-          onChanged: onChanged, // Pass onChanged to CustomTextField
         )
       ],
     );
   }
 }
 
-// CustomTextField widget
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -73,8 +66,6 @@ class CustomTextField extends StatelessWidget {
   final String? hint;
   final VoidCallback? onTap;
   final IconData? prefixIcon;
-  final ValueChanged<String>? onChanged; // Add the onChanged parameter
-
   const CustomTextField({
     super.key,
     this.controller,
@@ -88,7 +79,6 @@ class CustomTextField extends StatelessWidget {
     this.hint,
     this.onTap,
     this.prefixIcon,
-    this.onChanged, // Include onChanged
   });
 
   @override
@@ -100,18 +90,14 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       style: mediumTS.copyWith(fontSize: 14, color: neutralBlack),
       maxLines: maxLines,
-      onChanged: onChanged, // Handle onChanged here
       decoration: InputDecoration(
         filled: true,
         fillColor: backgroundColor,
-        prefixIcon:
-            prefixIcon != null ? Icon(prefixIcon, color: neutral400) : null,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: neutral400) : null,
         suffixIcon: isPassword
             ? GestureDetector(
                 onTap: onTap,
-                child: !obscureText
-                    ? const Icon(IconsaxPlusLinear.eye)
-                    : const Icon(IconsaxPlusLinear.eye_slash),
+                child: !obscureText ? const Icon(IconsaxPlusLinear.eye) : const Icon(IconsaxPlusLinear.eye_slash),
               )
             : null,
         hintText: hint,

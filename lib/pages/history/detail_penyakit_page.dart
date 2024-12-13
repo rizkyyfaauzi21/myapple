@@ -5,35 +5,13 @@ import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:apple_leaf/widgets/history/detail_penyakit_tab.dart';
-import 'package:apple_leaf/provider/disease_provider.dart';
 
 class DetailPenyakitPage extends StatelessWidget {
   final String title;
-  final String image;
-  const DetailPenyakitPage({
-    super.key,
-    required this.title,
-    required this.image,
-  });
-
-  int getDiseaseId() {
-    switch (title) {
-      case 'Scab':
-        return 1;
-      case 'Rust':
-        return 2;
-      case 'Healthy':
-        return 3;
-      default:
-        return 3;
-    }
-  }
+  const DetailPenyakitPage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    final diseaseId = getDiseaseId();
-    final disease = diseaseDetails[diseaseId];
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -59,18 +37,9 @@ class DetailPenyakitPage extends StatelessWidget {
                     constraints: const BoxConstraints(maxHeight: 230),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        'http://10.0.2.2:8000/storage/images/apples/$image',
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/apple_card.png'),
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: neutral100,
-                            child: const Icon(Icons.image_not_supported),
-                          );
-                        },
                       ),
                     ),
                   ),
@@ -80,8 +49,7 @@ class DetailPenyakitPage extends StatelessWidget {
                   // Title of Penyakit
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       color: neutralWhite,
                       border: Border.all(color: neutral100),
@@ -116,8 +84,7 @@ class DetailPenyakitPage extends StatelessWidget {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorColor: green700,
                       overlayColor: const MaterialStatePropertyAll(green50),
-                      labelStyle:
-                          mediumTS.copyWith(fontSize: 16, color: green700),
+                      labelStyle: mediumTS.copyWith(fontSize: 16, color: green700),
                       unselectedLabelStyle:
                           mediumTS.copyWith(fontSize: 16, color: neutral400),
                       tabs: const [
@@ -132,17 +99,20 @@ class DetailPenyakitPage extends StatelessWidget {
             ),
 
             // Tab Bar View
-            Expanded(
+            const Expanded(
               child: TabBarView(
                 children: [
                   DetailPenyakitTab(
-                    text: disease?.description ?? 'No description available',
+                    text:
+                        "Fire blight adalah penyakit bakteri yang disebabkan oleh Erwinia amylovora, yang terutama menyerang pohon apel dan pir. Penyakit ini menyebabkan daun dan ranting tampak seperti terbakar, sehingga disebut \"fire blight.\"",
                   ),
                   DetailPenyakitTab(
-                    text: disease?.symptoms ?? 'No symptoms available',
+                    text:
+                        "Gejalanya adalah daun dan ranting terlihat hitam dan seperti terbakar, terutama di musim semi.",
                   ),
                   DetailPenyakitTab(
-                    text: disease?.treatment ?? 'No treatment available',
+                    text:
+                        "Solusinya meliputi pemangkasan ranting yang terinfeksi dan penggunaan antibiotik berbasis streptomisin pada tahap awal infeksi.",
                   ),
                 ],
               ),
@@ -158,8 +128,7 @@ class DetailPenyakitPage extends StatelessWidget {
       context: context,
       builder: (context) => CustomDialog(
         title: 'Hapus riwayat ini?',
-        subtitle:
-            'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+        subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
         actions: [
           Row(
             children: [

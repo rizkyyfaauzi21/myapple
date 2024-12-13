@@ -20,7 +20,6 @@ class ListPenyakitCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => DetailPenyakitPage(
               title: title,
-              image: image,
             ),
           ),
         );
@@ -39,27 +38,9 @@ class ListPenyakitCard extends StatelessWidget {
               width: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  'http://10.0.2.2:8000$image',
+                image: DecorationImage(
+                  image: AssetImage(image),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: neutral100,
-                      child: const Icon(Icons.image_not_supported),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: neutral100,
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  },
                 ),
               ),
             ),
