@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 class ListPenyakitCard extends StatelessWidget {
   final String image, title, date, description, symptom, solution;
+  final int historyId;
+  final String appleId;
   const ListPenyakitCard({
     super.key,
     required this.image,
@@ -13,6 +15,8 @@ class ListPenyakitCard extends StatelessWidget {
     required this.description,
     required this.symptom,
     required this.solution,
+    required this.historyId,
+    required this.appleId,
   });
 
   @override
@@ -28,6 +32,8 @@ class ListPenyakitCard extends StatelessWidget {
               description: description,
               symptoms: symptom,
               treatment: solution,
+              historyId: historyId,
+              appleId: appleId,
             ),
           ),
         );

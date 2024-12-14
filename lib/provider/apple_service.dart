@@ -76,6 +76,14 @@ class AppleService {
       }
     }
   }
+  
+  Future<void> deleteApple(String appleId) async {
+    final uri = Uri.parse('$baseUrl/apples/$appleId');
+    final response = await http.delete(uri);
+    if (response.statusCode == 200) {
+      print('Apple deleted successfully: ${response.body}');
+    }
+  }
 }
 
 /// **Provider untuk AppleService**
@@ -161,5 +169,9 @@ class AppleNotifier extends StateNotifier<AppleState> {
     } catch (e) {
       throw Exception('Failed to add apple: $e');
     }
+  }
+  Future<void> deleteApple(String appleId) async {
+    await appleService.deleteApple(appleId);
+    fetchApples();
   }
 }
