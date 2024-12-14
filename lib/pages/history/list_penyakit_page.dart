@@ -75,6 +75,8 @@ class ListPenyakitPage extends ConsumerWidget {
                                 description: diseaseInfo['description'] ?? '-',
                                 symptom: diseaseInfo['symptoms'] ?? '-',
                                 solution: diseaseInfo['treatment'] ?? '-',
+                                historyId: history['id'],
+                                appleId: appleId,
                               );
                             },
                           ),
@@ -100,20 +102,58 @@ class ListPenyakitPage extends ConsumerWidget {
                   text: 'Hapus',
                   backgroundColor: redBase,
                   onTap: () async {
-                    final appleService = ref.read(appleServiceProvider);
-                    final userId = ref.read(authProvider).userData?['id'].toString();
-                    
-                    await appleService.deleteApple(appleId);
-                    
-                    // Refresh apple list after deletion
-                    if (userId != null) {
-                      ref.read(appleProvider(userId).notifier).fetchApples();
+                    try {
+                      // Show loading indicator
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+
+                      final appleService = ref.read(appleServiceProvider);
+                      final userId = ref.read(authProvider).userData?['id'].toString();
+                      
+                      // Delete the apple
+                      await appleService.deleteApple(appleId);
+                      
+                      // Refresh states
+                      if (userId != null) {
+                        // Refresh apple list
+                        ref.read(appleProvider(userId).notifier).fetchApples();
+                        // Invalidate history state
+                        ref.refresh(appleHistoryProvider(appleId));
+                      }
+
+                      if (context.mounted) {
+                        // Hide loading indicator
+                        Navigator.pop(context);
+                        // Close dialog
+                        Navigator.pop(context);
+                        // Show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Apel berhasil dihapus'),
+                            backgroundColor: green700,
+                          ),
+                        );
+                        // Go back to previous page
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        // Hide loading if shown
+                        Navigator.pop(context);
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Gagal menghapus apel: $e'),
+                            backgroundColor: redBase,
+                          ),
+                        );
+                      }
                     }
-                    
-                    // Close dialog
-                    Navigator.of(context).pop();
-                    // Go back to previous page
-                    Navigator.of(context).pop();
                   },
                 ),
               ),

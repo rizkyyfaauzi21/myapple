@@ -1,19 +1,25 @@
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/provider/api_provider.dart';
+import 'package:apple_leaf/provider/apple_service.dart';
+import 'package:apple_leaf/provider/auth_provider.dart';
+import 'package:apple_leaf/provider/history_service.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:apple_leaf/widgets/history/detail_penyakit_tab.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class DetailPenyakitPage extends StatelessWidget {
+class DetailPenyakitPage extends ConsumerWidget {
   final String title;
   final String image;
   final String description;
   final String treatment;
   final String symptoms;
+  final int historyId;
+  final String appleId;
 
   const DetailPenyakitPage({
     super.key,
@@ -22,10 +28,12 @@ class DetailPenyakitPage extends StatelessWidget {
     required this.description,
     required this.treatment,
     required this.symptoms,
+    required this.historyId,
+    required this.appleId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -33,7 +41,7 @@ class DetailPenyakitPage extends StatelessWidget {
           context,
           actions: [
             IconButton(
-              onPressed: () => handleDeleteRiwayat(context),
+              onPressed: () => handleDeleteHistory(context, ref),
               icon: const Icon(IconsaxPlusLinear.trash),
               color: redBase,
             )
@@ -146,39 +154,100 @@ class DetailPenyakitPage extends StatelessWidget {
     );
   }
 
-  Future<void> handleDeleteRiwayat(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) => CustomDialog(
-        title: 'Hapus riwayat ini?',
-        subtitle:
-            'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  isDialogButton: true,
-                  text: 'Hapus',
-                  backgroundColor: redBase,
-                  onTap: () {},
+  Future<void> handleDeleteHistory(BuildContext context, WidgetRef ref) async {
+    try {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => CustomDialog(
+          title: 'Hapus riwayat ini?',
+          subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    isDialogButton: true,
+                    text: 'Hapus',
+                    backgroundColor: redBase,
+                    onTap: () => Navigator.of(context).pop(true),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: CustomButton(
-                  isDialogButton: true,
-                  text: 'Batal',
-                  backgroundColor: neutralWhite,
-                  borderColor: neutral100,
-                  textColor: neutralBlack,
-                  onTap: () => Navigator.of(context).pop(),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: CustomButton(
+                    isDialogButton: true,
+                    text: 'Batal',
+                    backgroundColor: neutralWhite,
+                    borderColor: neutral100,
+                    textColor: neutralBlack,
+                    onTap: () => Navigator.of(context).pop(false),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      // If user confirmed deletion
+      if (result == true) {
+        final historyService = ref.read(historyServiceProvider);
+        final userId = ref.read(authProvider).userData?['id'].toString();
+
+        // Show loading indicator
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Delete history
+        await historyService.deleteHistory(historyId.toString());
+
+        // Refresh histories list using the correct provider
+        
+          // Refresh the apple histories state
+          ref.refresh(appleHistoryProvider(appleId.toString()));
+          // Also refresh the main apple list if needed
+          if (userId != null) {
+            ref.read(appleProvider(userId).notifier).fetchApples();
+          }
+
+        if (context.mounted) {
+          // Hide loading indicator
+          Navigator.pop(context);
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Riwayat berhasil dihapus'),
+              backgroundColor: green700,
+            ),
+          );
+
+          // Go back to previous screen
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      // Hide loading if shown
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menghapus riwayat: $e'),
+            backgroundColor: redBase,
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 }

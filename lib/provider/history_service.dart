@@ -36,6 +36,14 @@ class HistoryService {
       throw Exception('Error: $e');
     }
   }
+  
+  Future<void> deleteHistory(String appleId) async {
+    final uri = Uri.parse('$baseUrl/appleHistories/$appleId');
+    final response = await http.delete(uri);
+    if (response.statusCode == 200) {
+      print('Apple deleted successfully: ${response.body}');
+    }
+  }
 }
 
 final historyServiceProvider = Provider<HistoryService>((ref) {
@@ -92,6 +100,11 @@ class AppleHistoryNotifier extends StateNotifier<AppleHistoryState> {
         isLoading: false,
       );
     }
+  }
+
+    Future<void> deleteHistory(String appleId) async {
+    await _service.deleteHistory(appleId);
+    fetchHistories();
   }
 }
 
