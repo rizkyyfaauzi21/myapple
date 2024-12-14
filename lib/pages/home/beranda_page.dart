@@ -148,7 +148,7 @@ class BerandaPage extends ConsumerWidget {
                   return CustomCard(
                     appleId: apple['id'].toString(),
                     label: apple['nama_apel'] ?? 'Unknown Apple',
-                    waktuScan: 'Terakhir scan 1 minggu yang lalu',
+                    waktuScan: apple['created_at'] ?? 'Unknown Apple',
                     image: apple['image_url'] ?? 'assets/images/apple_card.png',
                   );
                 }).toList(),
