@@ -16,10 +16,18 @@ class RiwayatPage extends ConsumerStatefulWidget {
 
 class _RiwayatPageState extends ConsumerState<RiwayatPage> {
   final searchController = TextEditingController();
+  String searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    // Add listener to searchController
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+    
     // Fetch apples when the page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userId = ref.read(authProvider).userData?['id'].toString();
@@ -40,6 +48,13 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
     final userId = ref.watch(authProvider).userData?['id'].toString();
     final appleState = ref.watch(appleProvider(userId ?? ''));
 
+    // Filter apples based on search query
+    final filteredApples = appleState.apples.where((apple) {
+      final appleNameLower = (apple['nama_apel'] ?? '').toString().toLowerCase();
+      final searchQueryLower = searchQuery.toLowerCase();
+      return appleNameLower.contains(searchQueryLower);
+    }).toList();
+
     return Scaffold(
       appBar: mainAppBar(context, title: 'Riwayat'),
       body: Column(
@@ -55,16 +70,20 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
           ),
 
           Expanded(
-            child: appleState.apples.isEmpty
-                ? const Center(
-                    child: Text('Belum ada riwayat'),
+            child: filteredApples.isEmpty
+                ? Center(
+                    child: Text(
+                      searchQuery.isEmpty
+                          ? 'Belum ada riwayat'
+                          : 'Tidak ada hasil yang ditemukan',
+                    ),
                   )
                 : GridView.count(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     padding: const EdgeInsets.all(12),
-                    children: appleState.apples.map((apple) {
+                    children: filteredApples.map((apple) {
                       return CustomCard(
                         appleId: apple['id'].toString(),
                         label: apple['nama_apel'] ?? 'Unknown Apple',

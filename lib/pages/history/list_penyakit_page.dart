@@ -11,7 +11,7 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:apple_leaf/provider/auth_provider.dart';
 
-class ListPenyakitPage extends ConsumerWidget {
+class ListPenyakitPage extends ConsumerStatefulWidget {
   final String label;
   final String appleId;
 
@@ -22,15 +22,57 @@ class ListPenyakitPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final searchController = TextEditingController();
-    final historyState = ref.watch(appleHistoryProvider(appleId));
+  ConsumerState<ListPenyakitPage> createState() => _ListPenyakitPageState();
+}
+
+class _ListPenyakitPageState extends ConsumerState<ListPenyakitPage> {
+  final searchController = TextEditingController();
+  String selectedCategory = 'All'; // Default category
+  String searchQuery = '';
+
+  final List<String> categories = ['All', 'Healthy', 'Scab', 'Rust'];
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  List<dynamic> filterHistories(List<dynamic> histories) {
+    return histories.where((history) {
+      final historyData = history['history'] as Map<String, dynamic>;
+      final diseaseInfo = historyData['disease_info'] as Map<String, dynamic>;
+      final category = diseaseInfo['category']?.toString().toLowerCase() ?? '';
+      final searchLower = searchQuery.toLowerCase();
+
+      bool matchesCategory = selectedCategory == 'All' ||
+          category == selectedCategory.toLowerCase();
+      bool matchesSearch = category.contains(searchLower) ||
+          historyData['scan_date'].toString().toLowerCase().contains(searchLower);
+
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final historyState = ref.watch(appleHistoryProvider(widget.appleId));
 
     return Scaffold(
       backgroundColor: neutralWhite,
       appBar: customAppBar(
         context,
-        title: label,
+        title: widget.label,
         actions: [
           IconButton(
             onPressed: () => handleDeleteApel(context, ref),
@@ -41,14 +83,49 @@ class ListPenyakitPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          // Search field
           Padding(
             padding: const EdgeInsets.all(12),
-            child: CustomTextField(
-              prefixIcon: IconsaxPlusLinear.search_normal_1,
-              hint: 'Cari riwayat',
-              controller: searchController,
+            child: Column(
+              children: [
+                CustomTextField(
+                  prefixIcon: IconsaxPlusLinear.search_normal_1,
+                  hint: 'Cari riwayat',
+                  controller: searchController,
+                ),
+                const SizedBox(height: 12),
+                // Category filter chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: categories.map((category) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text(category),
+                          selected: selectedCategory == category,
+                          onSelected: (selected) {
+                            setState(() {
+                              selectedCategory = category;
+                            });
+                          },
+                          backgroundColor: neutral50,
+                          selectedColor: green100,
+                          checkmarkColor: green700,
+                          labelStyle: TextStyle(
+                            color: selectedCategory == category
+                                ? green700
+                                : neutral400,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
           ),
+          // List view
           Expanded(
             child: historyState.isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -58,9 +135,11 @@ class ListPenyakitPage extends ConsumerWidget {
                         ? const Center(child: Text('Belum ada riwayat'))
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
-                            itemCount: historyState.histories.length,
+                            itemCount:
+                                filterHistories(historyState.histories).length,
                             itemBuilder: (context, index) {
-                              final history = historyState.histories[index];
+                              final history =
+                                  filterHistories(historyState.histories)[index];
                               final historyData =
                                   history['history'] as Map<String, dynamic>;
                               final diseaseInfo = historyData['disease_info']
@@ -76,7 +155,7 @@ class ListPenyakitPage extends ConsumerWidget {
                                 symptom: diseaseInfo['symptoms'] ?? '-',
                                 solution: diseaseInfo['treatment'] ?? '-',
                                 historyId: history['id'],
-                                appleId: appleId,
+                                appleId: widget.appleId,
                               );
                             },
                           ),
@@ -116,14 +195,14 @@ class ListPenyakitPage extends ConsumerWidget {
                       final userId = ref.read(authProvider).userData?['id'].toString();
                       
                       // Delete the apple
-                      await appleService.deleteApple(appleId);
+                      await appleService.deleteApple(widget.appleId);
                       
                       // Refresh states
                       if (userId != null) {
                         // Refresh apple list
                         ref.read(appleProvider(userId).notifier).fetchApples();
                         // Invalidate history state
-                        ref.refresh(appleHistoryProvider(appleId));
+                        ref.refresh(appleHistoryProvider(widget.appleId));
                       }
 
                       if (context.mounted) {

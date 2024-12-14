@@ -66,6 +66,7 @@ class CustomTextField extends StatelessWidget {
   final String? hint;
   final VoidCallback? onTap;
   final IconData? prefixIcon;
+  final Function(String)? onChanged;
   const CustomTextField({
     super.key,
     this.controller,
@@ -79,6 +80,7 @@ class CustomTextField extends StatelessWidget {
     this.hint,
     this.onTap,
     this.prefixIcon,
+    this.onChanged,
   });
 
   @override
@@ -119,6 +121,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderradius),
         ),
       ),
+      onChanged: onChanged,
     );
   }
 }
