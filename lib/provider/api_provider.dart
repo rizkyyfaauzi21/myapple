@@ -4,7 +4,7 @@ class ApiConfig {
   static const String baseStorageUrl = 'http://10.0.2.2:8000/storage';
   
   // Storage paths
-  static const String scanImagesPath = '$baseStorageUrl/images/scans';
+  static const String scanImagesPath = '$baseStorageUrl/images/scans/';
   static const String appleImagesPath = '$baseStorageUrl/images/apples';
   
   // API endpoints

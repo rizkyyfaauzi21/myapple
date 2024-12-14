@@ -1,4 +1,5 @@
 import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_dialog.dart';
@@ -52,7 +53,7 @@ class DetailPenyakitPage extends StatelessWidget {
                       constraints: const BoxConstraints(maxHeight: 230),
                       child: CachedNetworkImage(
                         imageUrl:
-                            'http://10.0.2.2:8000/storage/images/scans/$image',
+                            ApiConfig.scanImagesPath + image,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => const Center(
                           child: CircularProgressIndicator(),
@@ -80,12 +81,14 @@ class DetailPenyakitPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          'Terjangkit $title',
+                          title.toLowerCase() == 'healthy'
+                              ? 'Apel anda sehat'
+                              : 'Terjangkit $title',
                           style: mediumTS.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Lihat diagnosis untuk detail dan penanganan',
+                          'Lihat diagnosis untuk detail lebih lanjut',
                           style: regularTS.copyWith(color: neutral400),
                           textAlign: TextAlign.center,
                         )
