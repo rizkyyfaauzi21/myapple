@@ -5,10 +5,23 @@ import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:apple_leaf/widgets/history/detail_penyakit_tab.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailPenyakitPage extends StatelessWidget {
   final String title;
-  const DetailPenyakitPage({super.key, required this.title});
+  final String image;
+  final String description;
+  final String treatment;
+  final String symptoms;
+
+  const DetailPenyakitPage({
+    super.key,
+    required this.title,
+    required this.image,
+    required this.description,
+    required this.treatment,
+    required this.symptoms,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +45,22 @@ class DetailPenyakitPage extends StatelessWidget {
               child: Column(
                 children: [
                   // Image of Penyakit
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(maxHeight: 230),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/apple_card.png'),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxHeight: 230),
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            'http://10.0.2.2:8000/storage/images/scans/$image',
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/images/apple_card.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
@@ -49,7 +70,8 @@ class DetailPenyakitPage extends StatelessWidget {
                   // Title of Penyakit
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       color: neutralWhite,
                       border: Border.all(color: neutral100),
@@ -63,7 +85,7 @@ class DetailPenyakitPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Lihat diagnosis untuk detail gejala dan penanganan',
+                          'Lihat diagnosis untuk detail dan penanganan',
                           style: regularTS.copyWith(color: neutral400),
                           textAlign: TextAlign.center,
                         )
@@ -84,13 +106,14 @@ class DetailPenyakitPage extends StatelessWidget {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorColor: green700,
                       overlayColor: const MaterialStatePropertyAll(green50),
-                      labelStyle: mediumTS.copyWith(fontSize: 16, color: green700),
+                      labelStyle:
+                          mediumTS.copyWith(fontSize: 16, color: green700),
                       unselectedLabelStyle:
                           mediumTS.copyWith(fontSize: 16, color: neutral400),
                       tabs: const [
                         Tab(child: Text('Definisi')),
                         Tab(child: Text('Gejala')),
-                        Tab(child: Text('Solusi')),
+                        Tab(child: Text('Penanganan')),
                       ],
                     ),
                   ),
@@ -99,20 +122,17 @@ class DetailPenyakitPage extends StatelessWidget {
             ),
 
             // Tab Bar View
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 children: [
                   DetailPenyakitTab(
-                    text:
-                        "Fire blight adalah penyakit bakteri yang disebabkan oleh Erwinia amylovora, yang terutama menyerang pohon apel dan pir. Penyakit ini menyebabkan daun dan ranting tampak seperti terbakar, sehingga disebut \"fire blight.\"",
+                    text: description,
                   ),
                   DetailPenyakitTab(
-                    text:
-                        "Gejalanya adalah daun dan ranting terlihat hitam dan seperti terbakar, terutama di musim semi.",
+                    text: symptoms,
                   ),
                   DetailPenyakitTab(
-                    text:
-                        "Solusinya meliputi pemangkasan ranting yang terinfeksi dan penggunaan antibiotik berbasis streptomisin pada tahap awal infeksi.",
+                    text: treatment,
                   ),
                 ],
               ),
@@ -128,7 +148,8 @@ class DetailPenyakitPage extends StatelessWidget {
       context: context,
       builder: (context) => CustomDialog(
         title: 'Hapus riwayat ini?',
-        subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+        subtitle:
+            'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
         actions: [
           Row(
             children: [

@@ -26,8 +26,8 @@ class ListPenyakitCard extends StatelessWidget {
               title: title,
               image: image,
               description: description,
-              symptom: symptom,
-              solution: solution,
+              symptoms: symptom,
+              treatment: solution,
             ),
           ),
         );
