@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:apple_leaf/pages/account/edit_password.dart';
 import 'package:apple_leaf/pages/account/edit_profil.dart';
 import 'package:apple_leaf/pages/login/auth_page.dart';
@@ -17,6 +19,9 @@ class ProfilPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    String? profilePicturePath;
+    final authNotifier = ref.read(authProvider.notifier);
+    final baseImageUrl = authNotifier.baseImageUrl;
 
     // Get user data from auth state
     final userData = authState.userData;
@@ -24,6 +29,7 @@ class ProfilPage extends ConsumerWidget {
     // If userData is null, show a loading indicator or default values
     final userName = userData?['name'] ?? 'Loading...';
     final userEmail = userData?['email'] ?? 'Loading...';
+    profilePicturePath = userData?['profile_picture'];
 
     return Scaffold(
       appBar: mainAppBar(context, title: 'Profil'),
@@ -43,8 +49,11 @@ class ProfilPage extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/1.jpg'),
+                CircleAvatar(
+                  backgroundImage: profilePicturePath != null
+                      ? NetworkImage(
+                          '$baseImageUrl/storage/$profilePicturePath')
+                      : const AssetImage('assets/images/icon.jpg'),
                 ),
                 const SizedBox(width: 10),
                 Column(
@@ -95,7 +104,8 @@ class ProfilPage extends ConsumerWidget {
                   icon: IconsaxPlusLinear.key,
                   title: 'Ubah Password',
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const EditPassword()),
+                    MaterialPageRoute(
+                        builder: (context) => const EditPassword()),
                   ),
                 ),
 
@@ -121,7 +131,8 @@ class ProfilPage extends ConsumerWidget {
       context: context,
       builder: (context) => CustomDialog(
         title: 'Ingin Keluar?',
-        subtitle: 'Anda dapat masuk kembali kapan saja dengan menggunakan akun Anda.',
+        subtitle:
+            'Anda dapat masuk kembali kapan saja dengan menggunakan akun Anda.',
         actions: [
           Row(
             children: [

@@ -1,7 +1,15 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'dart:io';
+
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 // Define the AuthState
 class AuthState {
@@ -39,7 +47,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   final _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://127.0.0.1:8000/api'; // Adjust based on your environment
+  final String baseUrl = ApiConfig.baseApiUrl;
+  // final String baseUrl = 'http://127.0.0.1:8000/api';
+  // final String baseUrl = 'http://192.168.1.4:8000/api';
+
+  String get baseImageUrl => baseUrl.replaceAll('/api', '');
 
   // Load user data on initialization
   Future<void> _loadUserData() async {
@@ -75,7 +87,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final userData = data['data']['user'];
         await _storage.write(key: 'auth_token', value: token);
 
-        state = state.copyWith(token: token, userData: userData, isLoading: false);
+        state =
+            state.copyWith(token: token, userData: userData, isLoading: false);
       } else {
         final data = jsonDecode(response.body);
         state = state.copyWith(
@@ -85,7 +98,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     } catch (e) {
       print('Login Error: $e'); // Log the error for debugging
-      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
+      state =
+          state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
@@ -94,7 +108,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       token ??= await _storage.read(key: 'auth_token');
       if (token == null) {
-        state = state.copyWith(error: 'Token tidak ditemukan. Silakan login kembali.');
+        state = state.copyWith(
+            error: 'Token tidak ditemukan. Silakan login kembali.');
         return;
       }
 
@@ -143,6 +158,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }),
       );
 
+      print(response);
+
       if (response.statusCode == 201) {
         // After successful registration, log the user in
         await login(email, password);
@@ -155,7 +172,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     } catch (e) {
       print('Register Error: $e'); // Log the error for debugging
-      state = state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
+      state =
+          state.copyWith(error: 'Gagal terhubung ke server.', isLoading: false);
     }
   }
 
@@ -215,6 +233,54 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     } catch (e) {
       print('UpdateProfile Error: $e'); // Log the error for debugging
+      return 'Gagal terhubung ke server.';
+    }
+  }
+
+  Future<String?> uploadPhotoProfile(
+      Uint8List imageBytes, String fileName) async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        return 'Token tidak ditemukan. Silakan login kembali.';
+      }
+
+      final url = Uri.parse('$baseUrl/user/updatePhoto');
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $token';
+
+      // Deteksi MIME type secara otomatis
+      final mimeType =
+          lookupMimeType(fileName, headerBytes: imageBytes) ?? 'image/jpeg';
+      final mimeParts = mimeType.split('/');
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'picture',
+          imageBytes,
+          filename: fileName,
+          contentType: MediaType(mimeParts[0], mimeParts[1]),
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final responseString = await streamedResponse.stream.bytesToString();
+      final response =
+          http.Response(responseString, streamedResponse.statusCode!);
+
+      if (response.statusCode == 200) {
+        // Parsing data user yang baru
+        final data = jsonDecode(response.body);
+        final userData = data['data'];
+        // Update state userData
+        state = state.copyWith(userData: userData);
+        return null; // Tidak ada error
+      } else {
+        final data = jsonDecode(response.body);
+        return data['message'] ?? 'Gagal update foto profil.';
+      }
+    } catch (e) {
+      print('UploadPhotoProfile Error: $e');
       return 'Gagal terhubung ke server.';
     }
   }

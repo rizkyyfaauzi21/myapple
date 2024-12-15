@@ -1,14 +1,22 @@
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/pages/history/detail_penyakit_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ListPenyakitCard extends StatelessWidget {
-  final String image, title, date;
+  final String image, title, date, description, symptom, solution;
+  final int historyId;
+  final String appleId;
   const ListPenyakitCard({
     super.key,
     required this.image,
     required this.title,
     required this.date,
+    required this.description,
+    required this.symptom,
+    required this.solution,
+    required this.historyId,
+    required this.appleId,
   });
 
   @override
@@ -20,6 +28,12 @@ class ListPenyakitCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => DetailPenyakitPage(
               title: title,
+              image: image,
+              description: description,
+              symptoms: symptom,
+              treatment: solution,
+              historyId: historyId,
+              appleId: appleId,
             ),
           ),
         );
@@ -34,13 +48,21 @@ class ListPenyakitCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: AssetImage(image),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 100,
+                height: 100,
+                child: CachedNetworkImage(
+                  imageUrl: 'http://10.0.2.2:8000/storage/images/scans/$image',
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/daun_article.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),

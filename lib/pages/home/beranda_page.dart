@@ -1,9 +1,16 @@
+import 'dart:io';
+
+import 'package:apple_leaf/pages/history/scan_page.dart';
+import 'package:apple_leaf/provider/imageScan_provider.dart';
 import 'package:apple_leaf/widgets/home/beranda_pindai_card.dart';
 import 'package:apple_leaf/widgets/home/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../provider/auth_provider.dart';
+import 'package:apple_leaf/provider/apple_service.dart';
+import 'package:apple_leaf/provider/history_service.dart';
 
 class BerandaPage extends ConsumerWidget {
   final Function(int) updateIndex;
@@ -12,6 +19,9 @@ class BerandaPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool isEventEmpty = false;
+    String? profilePicturePath;
+    final authNotifier = ref.read(authProvider.notifier);
+    final baseImageUrl = authNotifier.baseImageUrl;
 
     // Access the authentication state
     final authState = ref.watch(authProvider);
@@ -19,6 +29,11 @@ class BerandaPage extends ConsumerWidget {
 
     // Get the user's name, or use a default if it's null
     final userName = userData?['name'] ?? 'Pengguna';
+    profilePicturePath = userData?['profile_picture'];
+
+    final userId = userData?['id'].toString();
+    final appleState = ref.watch(appleProvider(userId ?? ''));
+    final historyState = ref.watch(appleHistoryProvider(userId ?? ''));
 
     return Scaffold(
       appBar: AppBar(
@@ -27,8 +42,10 @@ class BerandaPage extends ConsumerWidget {
           children: [
             GestureDetector(
               onTap: () => updateIndex(3),
-              child: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/1.jpg'),
+              child: CircleAvatar(
+                backgroundImage: profilePicturePath != null
+                    ? NetworkImage('$baseImageUrl/storage/$profilePicturePath')
+                    : const AssetImage('assets/images/icon.jpg'),
               ),
             ),
             const SizedBox(
@@ -58,7 +75,39 @@ class BerandaPage extends ConsumerWidget {
         children: [
           // Pindai
           BerandaPindaiCard(
-            onScan: () {},
+            // onScan: () {},
+            onScan: () async {
+              final image =
+                  await ImagePicker().pickImage(source: ImageSource.camera);
+              if (image != null) {
+            final file = File(image.path);
+
+            try {
+              // Akses fungsi upload dari provider
+              final result = await ref.read(imageUploadProvider).handleImageUpload(file, context);
+
+              // Pindah ke ScanPage dengan hasil prediksi
+              Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ScanPage(
+                        image: XFile(file.path),  // Mengirim XFile ke ScanPage
+                        title: result['predicted_label'],  // Hasil prediksi label
+                        predictedLabel: result['predicted_label'],
+                        category: result['category'],  // Data kategori
+                        userId: userData!['id'],
+                      );
+                    },
+                  ),
+                );
+            } catch (e) {
+              print("Error: $e");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Failed to upload image: $e")),
+              );
+            }
+          }
+            },
           ),
 
           const SizedBox(height: 16),
@@ -71,43 +120,40 @@ class BerandaPage extends ConsumerWidget {
               style: mediumTS.copyWith(fontSize: 20, color: neutralBlack),
             ),
           ),
-          isEventEmpty
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Image(
-                      image: AssetImage(
-                        'assets/icons/EmptyState.png',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      'Belum ada riwayat',
-                      style: mediumTS.copyWith(fontSize: 14, color: neutral400),
-                    )
-                  ],
-                )
-              : const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      CustomCard(
-                        label: 'Scrab',
-                        waktuScan: '1 hari yang lalu',
-                        image: 'assets/images/daun_article.png',
-                      ),
-                      CustomCard(
-                        label: 'Fire Blight',
-                        waktuScan: '1 hari yang lalu',
-                        image: 'assets/images/apple_card.png',
-                      ),
-                    ],
+          if (appleState.apples.isEmpty)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Image(
+                  image: AssetImage(
+                    'assets/icons/EmptyState.png',
                   ),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Belum ada riwayat',
+                  style: mediumTS.copyWith(fontSize: 14, color: neutral400),
+                )
+              ],
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: appleState.apples.take(2).map((apple) {
+                  return CustomCard(
+                    appleId: apple['id'].toString(),
+                    label: apple['nama_apel'] ?? 'Unknown Apple',
+                    waktuScan: apple['created_at'] ?? 'Unknown Apple',
+                    image: apple['image_url'] ?? 'assets/images/apple_card.png',
+                  );
+                }).toList(),
+              ),
+            ),
         ],
       ),
     );

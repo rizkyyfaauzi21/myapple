@@ -1,10 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 
 class DetailArtikelPage extends StatelessWidget {
   final String title;
-  const DetailArtikelPage({super.key, required this.title});
+  final String label;
+  final String image_path;
+  final String content;
+  const DetailArtikelPage(
+      {super.key,
+      required this.title,
+      required int articleId,
+      required this.label,
+      required this.image_path,
+      required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +30,15 @@ class DetailArtikelPage extends StatelessWidget {
             constraints: const BoxConstraints(maxHeight: 200),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              image: const DecorationImage(
-                image: AssetImage('assets/images/apple_card.png'),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl:
+                    image_path, // Use Image.asset or Image.network depending on the source of the image
                 fit: BoxFit.cover,
+                width: double.infinity,
+                height: 200,
               ),
             ),
           ),
@@ -48,8 +64,11 @@ class DetailArtikelPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sumber: gdm.id',
-                    style: regularTS.copyWith(fontSize: 12, color: neutral400, fontStyle: FontStyle.italic),
+                    label,
+                    style: regularTS.copyWith(
+                        fontSize: 12,
+                        color: neutral400,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
@@ -60,7 +79,7 @@ class DetailArtikelPage extends StatelessWidget {
 
           // Article
           Text(
-            "Bagi para Dulur yang punya tanaman apel, pasti sudah tidak asing dengan penyakit busuk buah. Penyakit ini juga lazim dikenal sebagai \"mata ayam\". Sebab menimbulkan bercak bulat berwarna hitam dengan pinggiran berwarna merah. Mirip dengan mata ayam.\n\nPenyakit busuk buah pada apel menjadi momok tersendiri bagi petani apel. Pasalnya, masalah ini tak hanya menyerang satu atau dua buah apel saja, melainkan bisa menyebar ke seluruh pohon.\n\nDampaknya tentu saja merugikan. Buah yang harusnya sudah bisa panen terpaksa dibuang karena tidak layak jual. Akibatnya petani mengalami kerugian baik secara tenaga maupun biaya.\n\nUntuk mengantisipasi penyakit ini, Dulur perlu memahami penyebab serta cara penanganannya. Agar masalah dapat diselesaikan hingga ke akarnya.",
+            content,
             style: regularTS.copyWith(color: neutralBlack),
             textAlign: TextAlign.justify,
           ),

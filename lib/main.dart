@@ -1,9 +1,9 @@
 // File: lib/main.dart
 
+import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'pages/login/auth_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Apple Leaf',
       theme: _buildTheme(),
-      home: const AuthPage(),
+      home: const SplashScreen(),
     );
   }
 
@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       primarySwatch: Colors.blue,
       fontFamily: 'Inter',
+      scaffoldBackgroundColor: neutralWhite,
     );
   }
 }

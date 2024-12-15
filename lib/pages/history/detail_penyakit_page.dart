@@ -1,17 +1,39 @@
 import 'package:apple_leaf/configs/theme.dart';
+import 'package:apple_leaf/provider/api_provider.dart';
+import 'package:apple_leaf/provider/apple_service.dart';
+import 'package:apple_leaf/provider/auth_provider.dart';
+import 'package:apple_leaf/provider/history_service.dart';
 import 'package:apple_leaf/widgets/custom_appbar.dart';
 import 'package:apple_leaf/widgets/custom_button.dart';
 import 'package:apple_leaf/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:apple_leaf/widgets/history/detail_penyakit_tab.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-class DetailPenyakitPage extends StatelessWidget {
+class DetailPenyakitPage extends ConsumerWidget {
   final String title;
-  const DetailPenyakitPage({super.key, required this.title});
+  final String image;
+  final String description;
+  final String treatment;
+  final String symptoms;
+  final int historyId;
+  final String appleId;
+
+  const DetailPenyakitPage({
+    super.key,
+    required this.title,
+    required this.image,
+    required this.description,
+    required this.treatment,
+    required this.symptoms,
+    required this.historyId,
+    required this.appleId,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -19,7 +41,7 @@ class DetailPenyakitPage extends StatelessWidget {
           context,
           actions: [
             IconButton(
-              onPressed: () => handleDeleteRiwayat(context),
+              onPressed: () => handleDeleteHistory(context, ref),
               icon: const Icon(IconsaxPlusLinear.trash),
               color: redBase,
             )
@@ -32,14 +54,22 @@ class DetailPenyakitPage extends StatelessWidget {
               child: Column(
                 children: [
                   // Image of Penyakit
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(maxHeight: 230),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/apple_card.png'),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxHeight: 230),
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            ApiConfig.scanImagesPath + image,
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/images/apple_card.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
@@ -49,21 +79,24 @@ class DetailPenyakitPage extends StatelessWidget {
                   // Title of Penyakit
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: neutral50,
+                      color: neutralWhite,
                       border: Border.all(color: neutral100),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       children: [
                         Text(
-                          'Terjangkit $title',
+                          title.toLowerCase() == 'healthy'
+                              ? 'Apel anda sehat'
+                              : 'Terjangkit $title',
                           style: mediumTS.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Lihat diagnosis untuk detail gejala dan penanganan',
+                          'Lihat diagnosis untuk detail lebih lanjut',
                           style: regularTS.copyWith(color: neutral400),
                           textAlign: TextAlign.center,
                         )
@@ -84,12 +117,14 @@ class DetailPenyakitPage extends StatelessWidget {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorColor: green700,
                       overlayColor: const MaterialStatePropertyAll(green50),
-                      labelStyle: mediumTS.copyWith(fontSize: 16, color: green700),
-                      unselectedLabelStyle: mediumTS.copyWith(fontSize: 16, color: neutral400),
+                      labelStyle:
+                          mediumTS.copyWith(fontSize: 16, color: green700),
+                      unselectedLabelStyle:
+                          mediumTS.copyWith(fontSize: 16, color: neutral400),
                       tabs: const [
                         Tab(child: Text('Definisi')),
                         Tab(child: Text('Gejala')),
-                        Tab(child: Text('Solusi')),
+                        Tab(child: Text('Penanganan')),
                       ],
                     ),
                   ),
@@ -98,20 +133,17 @@ class DetailPenyakitPage extends StatelessWidget {
             ),
 
             // Tab Bar View
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 children: [
                   DetailPenyakitTab(
-                    text:
-                        "Fire blight adalah penyakit bakteri yang disebabkan oleh Erwinia amylovora, yang terutama menyerang pohon apel dan pir. Penyakit ini menyebabkan daun dan ranting tampak seperti terbakar, sehingga disebut \"fire blight.\"",
+                    text: description,
                   ),
                   DetailPenyakitTab(
-                    text:
-                        "Gejalanya adalah daun dan ranting terlihat hitam dan seperti terbakar, terutama di musim semi.",
+                    text: symptoms,
                   ),
                   DetailPenyakitTab(
-                    text:
-                        "Solusinya meliputi pemangkasan ranting yang terinfeksi dan penggunaan antibiotik berbasis streptomisin pada tahap awal infeksi.",
+                    text: treatment,
                   ),
                 ],
               ),
@@ -122,38 +154,100 @@ class DetailPenyakitPage extends StatelessWidget {
     );
   }
 
-  Future<void> handleDeleteRiwayat(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) => CustomDialog(
-        title: 'Hapus riwayat ini?',
-        subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  isDialogButton: true,
-                  text: 'Hapus',
-                  backgroundColor: redBase,
-                  onTap: () {},
+  Future<void> handleDeleteHistory(BuildContext context, WidgetRef ref) async {
+    try {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => CustomDialog(
+          title: 'Hapus riwayat ini?',
+          subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    isDialogButton: true,
+                    text: 'Hapus',
+                    backgroundColor: redBase,
+                    onTap: () => Navigator.of(context).pop(true),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: CustomButton(
-                  isDialogButton: true,
-                  text: 'Batal',
-                  backgroundColor: neutralWhite,
-                  borderColor: neutral100,
-                  textColor: neutralBlack,
-                  onTap: () => Navigator.of(context).pop(),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: CustomButton(
+                    isDialogButton: true,
+                    text: 'Batal',
+                    backgroundColor: neutralWhite,
+                    borderColor: neutral100,
+                    textColor: neutralBlack,
+                    onTap: () => Navigator.of(context).pop(false),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      // If user confirmed deletion
+      if (result == true) {
+        final historyService = ref.read(historyServiceProvider);
+        final userId = ref.read(authProvider).userData?['id'].toString();
+
+        // Show loading indicator
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Delete history
+        await historyService.deleteHistory(historyId.toString());
+
+        // Refresh histories list using the correct provider
+        
+          // Refresh the apple histories state
+          ref.refresh(appleHistoryProvider(appleId.toString()));
+          // Also refresh the main apple list if needed
+          if (userId != null) {
+            ref.read(appleProvider(userId).notifier).fetchApples();
+          }
+
+        if (context.mounted) {
+          // Hide loading indicator
+          Navigator.pop(context);
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Riwayat berhasil dihapus'),
+              backgroundColor: green700,
+            ),
+          );
+
+          // Go back to previous screen
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      // Hide loading if shown
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menghapus riwayat: $e'),
+            backgroundColor: redBase,
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 }
