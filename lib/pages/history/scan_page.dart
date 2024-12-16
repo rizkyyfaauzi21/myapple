@@ -89,7 +89,7 @@ class ScanPage extends ConsumerWidget {
                     child: Column(
                       children: [
                         Text(
-                          title.toLowerCase() == 'healthy'
+                          title == 'Healthy'
                               ? 'Apel anda sehat'
                               : 'Terjangkit $title',
                           style: mediumTS.copyWith(
