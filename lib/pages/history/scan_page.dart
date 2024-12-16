@@ -91,7 +91,8 @@ class ScanPage extends ConsumerWidget {
                           title.toLowerCase() == 'healthy'
                               ? 'Apel anda sehat'
                               : 'Terjangkit $title',
-                          style: mediumTS.copyWith(fontSize: 18),
+                          style: mediumTS.copyWith(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
