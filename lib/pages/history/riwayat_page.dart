@@ -27,7 +27,7 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
         searchQuery = searchController.text;
       });
     });
-    
+
     // Fetch apples when the page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userId = ref.read(authProvider).userData?['id'].toString();
@@ -50,7 +50,8 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
 
     // Filter apples based on search query
     final filteredApples = appleState.apples.where((apple) {
-      final appleNameLower = (apple['nama_apel'] ?? '').toString().toLowerCase();
+      final appleNameLower =
+          (apple['nama_apel'] ?? '').toString().toLowerCase();
       final searchQueryLower = searchQuery.toLowerCase();
       return appleNameLower.contains(searchQueryLower);
     }).toList();
@@ -76,6 +77,7 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
                       searchQuery.isEmpty
                           ? 'Belum ada riwayat'
                           : 'Tidak ada hasil yang ditemukan',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   )
                 : GridView.count(
@@ -88,7 +90,8 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
                         appleId: apple['id'].toString(),
                         label: apple['nama_apel'] ?? 'Unknown Apple',
                         waktuScan: apple['created_at'] ?? 'Unknown Apple',
-                        image: apple['image_url'] ?? 'assets/images/apple_card.png',
+                        image: apple['image_url'] ??
+                            'assets/images/apple_card.png',
                       );
                     }).toList(),
                   ),

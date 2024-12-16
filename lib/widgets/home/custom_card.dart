@@ -20,12 +20,14 @@ class CustomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = (screenWidth - (12 * 3)) / 2; // Total padding space is 36 (12 * 3)
+    final cardWidth =
+        (screenWidth - (12 * 3)) / 2; // Total padding space is 36 (12 * 3)
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => ListPenyakitPage(label: label, appleId: appleId),
+          builder: (context) =>
+              ListPenyakitPage(label: label, appleId: appleId),
         ),
       ),
       child: Container(
@@ -41,7 +43,7 @@ class CustomCard extends StatelessWidget {
           children: [
             // Image
             SizedBox(
-              height: 128,
+              height: 126,
               width: cardWidth,
               child: image.startsWith('http') || image.startsWith('https')
                   ? CachedNetworkImage(
