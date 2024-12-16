@@ -1,5 +1,6 @@
 import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/pages/history/detail_penyakit_page.dart';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,7 @@ class ListPenyakitCard extends StatelessWidget {
                 width: 100,
                 height: 100,
                 child: CachedNetworkImage(
-                  imageUrl: 'http://10.0.2.2:8000/storage/images/scans/$image',
+                  imageUrl: ApiConfig.scanImagesPath + image,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(),

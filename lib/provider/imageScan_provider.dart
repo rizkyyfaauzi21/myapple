@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:apple_leaf/provider/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +17,7 @@ final imageUploadProvider = Provider<ImageUploadService>((ref) {
 class ImageUploadService {
   Future<Map<String, dynamic>> handleImageUpload(File imageFile, BuildContext context) async {
     try {
-      final url = Uri.parse("http://10.0.2.2:8001/predict/");
+      final url = Uri.parse(ApiConfig.predictUrl);
       final mimeType = lookupMimeType(imageFile.path);
 
       // Validasi mimeType

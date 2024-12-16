@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:apple_leaf/configs/theme.dart';
 import 'package:apple_leaf/provider/history_service.dart';
 import 'package:apple_leaf/provider/scan_notifier.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -48,7 +49,7 @@ class AppleCard extends ConsumerWidget {
               progressIndicatorBuilder: (context, url, downloadProgress) =>
                   Center(
                 child:
-                    CircularProgressIndicator(value: downloadProgress.progress),
+                    CircularProgressIndicator(value: downloadProgress.progress, valueColor: AlwaysStoppedAnimation<Color>(green700)),
               ),
             ),
           ),
