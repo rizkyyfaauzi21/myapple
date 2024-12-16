@@ -87,29 +87,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
         const SizedBox(height: 8),
 
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
-              );
-            },
-            style: const ButtonStyle(
-              overlayColor: MaterialStatePropertyAll(green100),
-            ),
-            child: Text(
-              'Lupa Password?',
-              style: mediumTS.copyWith(color: green700),
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ),
-
         const SizedBox(height: 12),
 
         isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(green700),
+                ),
+              )
             : CustomButton(
                 onTap: handleLogin,
                 text: 'Masuk',

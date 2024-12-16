@@ -64,7 +64,7 @@ class DetailPenyakitPage extends ConsumerWidget {
                             ApiConfig.scanImagesPath + image,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(green700)),
                         ),
                         errorWidget: (context, url, error) => Image.asset(
                           'assets/images/apple_card.png',
@@ -200,7 +200,7 @@ class DetailPenyakitPage extends ConsumerWidget {
             context: context,
             barrierDismissible: false,
             builder: (context) => const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(green700)),
             ),
           );
         }

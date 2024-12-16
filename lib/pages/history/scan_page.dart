@@ -79,7 +79,8 @@ class ScanPage extends ConsumerWidget {
                   // Title of Penyakit
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       color: neutral50,
                       border: Border.all(color: neutral100),
@@ -116,7 +117,8 @@ class ScanPage extends ConsumerWidget {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorColor: green700,
                       overlayColor: const MaterialStatePropertyAll(green50),
-                      labelStyle: mediumTS.copyWith(fontSize: 16, color: green700),
+                      labelStyle:
+                          mediumTS.copyWith(fontSize: 16, color: green700),
                       unselectedLabelStyle:
                           mediumTS.copyWith(fontSize: 16, color: neutral400),
                       tabs: const [
@@ -187,13 +189,16 @@ class ScanPage extends ConsumerWidget {
                     children: [
                       Text(
                         'Apel Anda',
-                        style: mediumTS.copyWith(fontSize: 18, color: neutralBlack),
+                        style: mediumTS.copyWith(
+                            fontSize: 18, color: neutralBlack),
                       ),
                       GestureDetector(
-                        onTap: () => handleKoleksiBaru(context, koleksiController, ref),
+                        onTap: () =>
+                            handleKoleksiBaru(context, koleksiController, ref),
                         child: Text(
                           'Koleksi Baru',
-                          style: mediumTS.copyWith(fontSize: 12, color: green700),
+                          style:
+                              mediumTS.copyWith(fontSize: 12, color: green700),
                         ),
                       )
                     ],
@@ -207,11 +212,11 @@ class ScanPage extends ConsumerWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: AppleCard(
-                            imagePath:
-                                apple['image_url'] ?? 'assets/images/default_image.png',
+                            imagePath: apple['image_url'] ??
+                                'assets/images/default_image.png',
                             scanImagePath: image,
                             appleName: apple['nama_apel'] ?? 'Unknown Apple',
-                            lastScan: 'Terakhir discan 1 hari yang lalu',
+                            lastScan: apple['created_at'] ?? 'Terakhir discan 1 hari yang lalu',
                             appleId: apple['id'].toString(),
                             userId: userId.toString(),
                             diseaseInfoId: category['id'].toString(),
@@ -285,10 +290,13 @@ class ScanPage extends ConsumerWidget {
                           onTap: isLoading
                               ? null
                               : () async {
-                                  final appleService = ref.read(appleServiceProvider);
-                                  final notifier = ref.read(isSavingProvider.notifier);
-                                  final appleNotifier =
-                                      ref.read(appleProvider(userId.toString()).notifier);
+                                  final appleService =
+                                      ref.read(appleServiceProvider);
+                                  final notifier =
+                                      ref.read(isSavingProvider.notifier);
+                                  final appleNotifier = ref.read(
+                                      appleProvider(userId.toString())
+                                          .notifier);
 
                                   try {
                                     notifier.state = true; // Set loading
@@ -311,9 +319,11 @@ class ScanPage extends ConsumerWidget {
 
                                     // Menampilkan SnackBar hanya setelah addApple berhasil
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('Koleksi berhasil disimpan!'),
+                                          content: Text(
+                                              'Koleksi berhasil disimpan!'),
                                           backgroundColor: green700,
                                         ),
                                       );
@@ -323,9 +333,11 @@ class ScanPage extends ConsumerWidget {
                                     print('Error: $e');
 
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
-                                          content: Text('Gagal menyimpan apel: $e'),
+                                          content:
+                                              Text('Gagal menyimpan apel: $e'),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
@@ -352,7 +364,8 @@ class ScanPage extends ConsumerWidget {
       context: context,
       builder: (context) => CustomDialog(
         title: 'Hapus riwayat ini?',
-        subtitle: 'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
+        subtitle:
+            'Semua informasi yang terkait dengan diagnosis ini akan hilang.',
         actions: [
           Row(
             children: [

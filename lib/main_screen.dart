@@ -49,24 +49,27 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
           final isUploading = ref.watch(isUploadingProvider);
-          
+
           return FloatingActionButton(
-            onPressed: isUploading 
-                ? null 
+            onPressed: isUploading
+                ? null
                 : () async {
-                    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+                    final image = await ImagePicker()
+                        .pickImage(source: ImageSource.camera);
                     if (image != null) {
                       final file = File(image.path);
                       try {
                         // Set loading state
                         ref.read(isUploadingProvider.notifier).state = true;
-                        
+
                         // Show loading dialog
                         showDialog(
                           context: context,
                           barrierDismissible: false,
                           builder: (context) => const Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(green700)),
                           ),
                         );
 
@@ -83,7 +86,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             MaterialPageRoute(
                               builder: (context) => ScanPage(
                                 image: XFile(file.path),
-                                title: result['predicted_label'],
+                                title: result['category']['category'],
                                 predictedLabel: result['predicted_label'],
                                 category: result['category'],
                                 userId: userData!['id'],
@@ -94,10 +97,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       } catch (e) {
                         // Hide loading dialog
                         if (context.mounted) Navigator.pop(context);
-                        
+
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed to upload image: $e")),
+                            SnackBar(
+                                content: Text("Failed to upload image: $e")),
                           );
                         }
                       } finally {

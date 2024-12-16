@@ -51,7 +51,8 @@ class ArtikelCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
               ),
-              clipBehavior: Clip.antiAlias, // Agar radius diterapkan pada gambar
+              clipBehavior:
+                  Clip.antiAlias, // Agar radius diterapkan pada gambar
               child: CachedNetworkImage(
                 imageUrl: image_path,
                 fit: BoxFit.cover,
@@ -60,8 +61,11 @@ class ArtikelCard extends StatelessWidget {
                   size: 50,
                   color: Colors.grey,
                 ),
-                progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-                  child: CircularProgressIndicator(value: downloadProgress.progress),
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    Center(
+                  child: CircularProgressIndicator(
+                      value: downloadProgress.progress,
+                      valueColor: AlwaysStoppedAnimation<Color>(green700)),
                 ),
               ),
             ),
@@ -79,7 +83,8 @@ class ArtikelCard extends StatelessWidget {
                           color: neutral50,
                           borderRadius: BorderRadius.circular(64),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         child: Text(
                           label,
                           style: regularTS.copyWith(

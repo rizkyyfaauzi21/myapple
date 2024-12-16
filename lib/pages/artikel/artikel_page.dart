@@ -35,7 +35,11 @@ class _ArtikelPageState extends ConsumerState<ArtikelPage> {
           await artikelNotifier.fetchArticles();
         },
         child: artikelState.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(green700),
+                ),
+              )
             : artikelState.errorMessage != null
                 ? Center(
                     child: Column(
@@ -69,7 +73,8 @@ class _ArtikelPageState extends ConsumerState<ArtikelPage> {
                         itemBuilder: (context, index) {
                           final article = artikelState.articles[index];
                           return ArtikelCard(
-                            image_path: article['image_url'] ?? 'assets/images/default_image.png',
+                            image_path: article['image_url'] ??
+                                'assets/images/default_image.png',
                             label: article['source'] ?? 'Uncategorized',
                             title: article['title'] ?? 'Untitled',
                             content: article['content'] ?? 'No content',

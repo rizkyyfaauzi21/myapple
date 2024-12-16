@@ -160,7 +160,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       print(response);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         // After successful registration, log the user in
         await login(email, password);
       } else {

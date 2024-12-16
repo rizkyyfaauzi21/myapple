@@ -58,7 +58,10 @@ class _ListPenyakitPageState extends ConsumerState<ListPenyakitPage> {
       bool matchesCategory = selectedCategory == 'All' ||
           category == selectedCategory.toLowerCase();
       bool matchesSearch = category.contains(searchLower) ||
-          historyData['scan_date'].toString().toLowerCase().contains(searchLower);
+          historyData['scan_date']
+              .toString()
+              .toLowerCase()
+              .contains(searchLower);
 
       return matchesCategory && matchesSearch;
     }).toList();
@@ -128,7 +131,9 @@ class _ListPenyakitPageState extends ConsumerState<ListPenyakitPage> {
           // List view
           Expanded(
             child: historyState.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(green700)))
                 : historyState.error != null
                     ? Center(child: Text(historyState.error!))
                     : historyState.histories.isEmpty
@@ -138,8 +143,8 @@ class _ListPenyakitPageState extends ConsumerState<ListPenyakitPage> {
                             itemCount:
                                 filterHistories(historyState.histories).length,
                             itemBuilder: (context, index) {
-                              final history =
-                                  filterHistories(historyState.histories)[index];
+                              final history = filterHistories(
+                                  historyState.histories)[index];
                               final historyData =
                                   history['history'] as Map<String, dynamic>;
                               final diseaseInfo = historyData['disease_info']
@@ -187,16 +192,17 @@ class _ListPenyakitPageState extends ConsumerState<ListPenyakitPage> {
                         context: context,
                         barrierDismissible: false,
                         builder: (context) => const Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(green700)),
                         ),
                       );
 
                       final appleService = ref.read(appleServiceProvider);
-                      final userId = ref.read(authProvider).userData?['id'].toString();
-                      
+                      final userId =
+                          ref.read(authProvider).userData?['id'].toString();
+
                       // Delete the apple
                       await appleService.deleteApple(widget.appleId);
-                      
+
                       // Refresh states
                       if (userId != null) {
                         // Refresh apple list
